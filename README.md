@@ -1,2 +1,19 @@
-# ACDNB-FRONTEND-MOBILE
-Aplicação mobile desenvolvida para gerenciamento de mensalidades, controle de pagamentos, lista de espera e dados cadastrais dos alunos de um clube de tênis de mesa.
+# ACDNB - Gestão de Mensalidades (Mobile)
+
+## 📌 Sobre o projeto
+Aplicação mobile para gestão de mensalidades de um clube de tênis de mesa.
+
+## 🚀 Funcionalidades
+- Cadastro de alunos
+- Controle de pagamentos
+- Visualização de inadimplência
+- Lista de espera
+- Dashboard com dados financeiros
+
+## 🛠 Tecnologias utilizadas
+- (React Native / Flutter / etc)
+- API REST
+- Banco de dados (informar)
+
+## 🎯 Objetivo
+Facilitar o controle financeiro e administrativo do clube.
