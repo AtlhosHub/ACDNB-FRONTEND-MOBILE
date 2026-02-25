@@ -13,7 +13,7 @@ Aplicação mobile para gestão de mensalidades de um clube de tênis de mesa.
 ## 🛠 Tecnologias utilizadas
 - (React Native / Flutter / etc)
 - API REST
-- Banco de dados (informar)
+- Banco de dados seilá o que sei o que lá
 
 ## 🎯 Objetivo
 Facilitar o controle financeiro e administrativo do clube.
