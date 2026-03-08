@@ -9,9 +9,14 @@ const Label = ({
   placeholder = '',
   secureTextEntry = false,
   isPassword = false,
+  containerStyle,
+  inputStyle,
+  rightIcon,
+  onRightPress,
 }) => {
   const [passwordHidden, setPasswordHidden] = useState(secureTextEntry || isPassword);
   const showToggle = isPassword;
+  const showCustomRightIcon = !showToggle && !!rightIcon;
   const shouldHideText = showToggle ? passwordHidden : secureTextEntry;
 
   return (
@@ -24,6 +29,7 @@ const Label = ({
         borderColor: 'rgba(0, 0, 0, 0.7)',
         borderRadius: 10,
         justifyContent: 'center',
+        ...(containerStyle || {}),
       }}
     >
       <TextInput
@@ -37,10 +43,11 @@ const Label = ({
           height: '100%',
           textAlignVertical: 'center',
           paddingLeft: 12,
-          paddingRight: showToggle ? 42 : 12,
+          paddingRight: showToggle || showCustomRightIcon ? 42 : 12,
           fontFamily: 'Poppins_400Regular',
           fontSize: 16,
           color: '#1E1919',
+          ...(inputStyle || {}),
         }}
       />
 
@@ -60,6 +67,22 @@ const Label = ({
             size={20}
             color="#0D3C53"
           />
+        </TouchableOpacity>
+      )}
+
+      {showCustomRightIcon && (
+        <TouchableOpacity
+          onPress={onRightPress}
+          style={{
+            position: 'absolute',
+            right: 12,
+            height: '100%',
+            justifyContent: 'center',
+          }}
+          activeOpacity={onRightPress ? 0.7 : 1}
+          disabled={!onRightPress}
+        >
+          {rightIcon}
         </TouchableOpacity>
       )}
     </View>
