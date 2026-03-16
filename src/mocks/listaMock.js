@@ -66,3 +66,16 @@ export const listaMock = [
     horarioPreferencia: '19H - 21H',
   },
 ];
+
+export const mensalidadesMock = [
+  { id: '1', nomeAluno: 'Carolina Timoteo Teixeira', dataPagamento: '02/03/2025', metodoPagamento: 'Pix', status: 'pago' },
+  { id: '2', nomeAluno: 'Sofia Almeida', dataPagamento: null, metodoPagamento: null, status: 'pendente' },
+  { id: '3', nomeAluno: 'Rafael Gomes', dataPagamento: null, metodoPagamento: null, status: 'atrasado' },
+  { id: '4', nomeAluno: 'Shuichi Saihara', dataPagamento: '02/03/2025', metodoPagamento: 'Pix', status: 'pago' },
+  { id: '5', nomeAluno: 'Anne Morita', dataPagamento: '02/03/2025', metodoPagamento: 'Pix', status: 'pago' },
+  { id: '6', nomeAluno: 'Bruno Almeida Santos', dataPagamento: '02/03/2025', metodoPagamento: 'Cartão', status: 'pago' },
+  { id: '7', nomeAluno: 'Paula Vieira Lima', dataPagamento: null, metodoPagamento: null, status: 'atrasado' },
+  { id: '8', nomeAluno: 'Gabriel Moraes Costa', dataPagamento: '02/03/2025', metodoPagamento: 'Pix', status: 'pago' },
+  { id: '9', nomeAluno: 'Amanda Dias Ferreira', dataPagamento: null, metodoPagamento: null, status: 'pendente' },
+  { id: '10', nomeAluno: 'Lucas Barbosa Rocha', dataPagamento: '02/03/2025', metodoPagamento: 'Dinheiro', status: 'pago' },
+];

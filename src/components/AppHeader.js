@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-
 
 const backgroundImage = require('../assets/images/background.png');
 
-const AppHeader = ({ subtitle, onBackPress }) => {
+const AppHeader = ({ subtitulo, onBackPress }) => {
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
 
@@ -52,7 +52,7 @@ const AppHeader = ({ subtitle, onBackPress }) => {
               color: '#FFFFFF',
             }}
           >
-            {subtitle}
+            {subtitulo}
           </Text>
         </View>
 
