@@ -7,9 +7,10 @@ import { Mohave_600SemiBold } from '@expo-google-fonts/mohave';
 import LoginScreen from './src/screens/LoginScreen';
 import ListaEsperaScreen from './src/screens/ListaEsperaScreen';
 import MensalidadesScreen from './src/screens/MensalidadesScreen';
+import CadastroInteressadoScreen from './src/screens/CadastroInteressadoScreen';
 
 const TELAS = [
-  { key: 'login',       label: 'Login',        component: LoginScreen },
+  { key: 'login',       label: 'Login',        component: CadastroInteressadoScreen },
   { key: 'listaEspera', label: 'Lista Espera',  component: ListaEsperaScreen },
   { key: 'mensalidades',label: 'Mensalidades',  component: MensalidadesScreen },
 ];
