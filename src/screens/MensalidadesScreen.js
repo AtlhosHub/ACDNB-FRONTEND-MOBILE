@@ -13,6 +13,7 @@ import Label from '../components/Label';
 import AppHeader from '../components/AppHeader';
 import FiltroMensalidadesModal from '../components/FiltroMensalidadesModal';
 import { mensalidadesMock } from '../mocks/listaMock';
+import DetalhesAlunoScreen from './DetalhesAlunoScreen';
 
 const ENDPOINT_MENSALIDADES = 'http/';
 const REGISTROS_POR_PAGINA = 5;
@@ -79,6 +80,7 @@ const MensalidadesScreen = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroVisivel, setFiltroVisivel] = useState(false);
   const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: null, tiposPagamento: [] });
+  const [alunoSelecionado, setAlunoSelecionado] = useState(null);
 
   useEffect(() => {
     const carregarMensalidades = async () => {
@@ -134,6 +136,15 @@ const MensalidadesScreen = () => {
 
   const inicio = (paginaAtual - 1) * REGISTROS_POR_PAGINA;
   const registrosPagina = registrosFiltrados.slice(inicio, inicio + REGISTROS_POR_PAGINA);
+
+  if (alunoSelecionado) {
+    return (
+      <DetalhesAlunoScreen
+        aluno={alunoSelecionado}
+        onVoltar={() => setAlunoSelecionado(null)}
+      />
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f3f9f9' }}>
@@ -246,8 +257,10 @@ const MensalidadesScreen = () => {
               const bordaStatus = BORDA_STATUS[item.status] ?? BORDA_STATUS.pendente;
 
               return (
-                <View
+                <TouchableOpacity
                   key={item.id}
+                  activeOpacity={0.7}
+                  onPress={() => setAlunoSelecionado(item)}
                   style={{
                     backgroundColor: '#ffffff',
                     // ✅ CORRIGIDO: border-radius 14px igual ao Figma
@@ -393,7 +406,7 @@ const MensalidadesScreen = () => {
                       {statusConf.label}
                     </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </View>
