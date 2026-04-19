@@ -16,35 +16,10 @@ import { listaMock } from '../mocks/listaMock';
 import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatarData, formatarHorario } from '../utils/formatters';
 
 const ENDPOINTLISTAESPERA = 'http/';
 const REGISTROSPORPAGINA = 10;
-
-// Formato de data ISO para DD/MM/YYYY
-const formatarData = (dataISO) => {
-  if (!dataISO) return '-';
-  try {
-    const data = new Date(dataISO);
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  } catch (e) {
-    return '-';
-  }
-};
-
-// Formato de horário HH:mm:ss para HH-HH
-const formatarHorario = (horarioInicio, horarioFim) => {
-  if (!horarioInicio || !horarioFim) return '-';
-  try {
-    const inicio = horarioInicio.split(':')[0]; // Extrai hora de "14:00:00"
-    const fim = horarioFim.split(':')[0]; // Extrai hora de "17:00:00"
-    return `${inicio}H - ${fim}H`;
-  } catch (e) {
-    return '-';
-  }
-};
 
 const normalizarRegistro = (registro, indice) => {
   // Trata dados da API real
@@ -126,8 +101,9 @@ const listaEsperaScreen = () => {
     const inicializarToken = async () => {
       try {
         let token = await AsyncStorage.getItem('authToken');
+        // tirar isso depois que o login estiver integrado, mockei o token só pra poder testar
         if (!token) {
-          token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzY2MTk3MDQsImV4cCI6MTc3NjYyNjkwNH0.g3HzcSSZqoS1bZOo14WfUMUD0bVvr23_I3jILXfbrz8Djrb000EhGhKt-e_W3yLM6iyYtX7AEdgKdW7jvWNe2g';
+          token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzY2MzA1MDEsImV4cCI6MTc3NjYzNzcwMX0.W6XYfaeWtQNwA7Xdn5sOpdtm3zmIFl8BJvs8Y9jEsKGR7x7qm4gsdYP-Zf6frsisDuDPu8ZdjTiBI8XP6RQx7g';
           await AsyncStorage.setItem('authToken', token);
         }
         setAuthToken(token);
