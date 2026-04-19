@@ -14,24 +14,71 @@ import { ImageBackground, TextInput } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import { listaMock } from '../mocks/listaMock';
 import { ActivityIndicator } from 'react-native';
+import { api } from '../../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ENDPOINTLISTAESPERA = 'http/';
 const REGISTROSPORPAGINA = 10;
-const normalizarRegistro = (registro, indice) => ({
-  id: String(registro.id ?? registro.alunoId ?? indice + 1),
-  nomeAluno: String(
-    registro.nomeAluno ?? registro.nome ?? registro.nomeEstudante ?? '-',
-  ),
-  dataContato: String(
-    registro.dataContato ?? registro.contatoData ?? registro.dataAluno ?? '-',
-  ),
-  horarioPreferencia: String(
-    registro.horarioPreferencia ??
+
+// Formato de data ISO para DD/MM/YYYY
+const formatarData = (dataISO) => {
+  if (!dataISO) return '-';
+  try {
+    const data = new Date(dataISO);
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  } catch (e) {
+    return '-';
+  }
+};
+
+// Formato de horário HH:mm:ss para HH-HH
+const formatarHorario = (horarioInicio, horarioFim) => {
+  if (!horarioInicio || !horarioFim) return '-';
+  try {
+    const inicio = horarioInicio.split(':')[0]; // Extrai hora de "14:00:00"
+    const fim = horarioFim.split(':')[0]; // Extrai hora de "17:00:00"
+    return `${inicio}H - ${fim}H`;
+  } catch (e) {
+    return '-';
+  }
+};
+
+const normalizarRegistro = (registro, indice) => {
+  // Trata dados da API real
+  if (registro.nome?.value) {
+    return {
+      id: String(registro.id ?? indice + 1),
+      nomeAluno: String(registro.nome.value ?? '-'),
+      dataContato: formatarData(registro.dataInteresse?.value),
+      horarioPreferencia: formatarHorario(
+        registro.horarioPref?.horarioAulaInicio,
+        registro.horarioPref?.horarioAulaFim,
+      ),
+    };
+  }
+
+  // Trata dados do mock (fallback)
+  return {
+    id: String(registro.id ?? registro.alunoId ?? indice + 1),
+    nomeAluno: String(
+      registro.nomeAluno ?? registro.nome ?? registro.nomeEstudante ?? '-',
+    ),
+    dataContato: String(
+      registro.dataContato ?? registro.contatoData ?? registro.dataAluno ?? '-',
+    ),
+    horarioPreferencia: String(
+      registro.horarioPreferencia ??
       registro.horario ??
       registro.preferenciaAluno ??
       '-',
-  ),
-});
+    ),
+  };
+};
+
+
 
 const listaEsperaScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -42,34 +89,82 @@ const listaEsperaScreen = () => {
   const [usandoMock, setUsandoMock] = useState(false);
   const [textoBusca, setTextoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+  const [authToken, setAuthToken] = useState(null);
+
+  async function getListaEspera(filtro, authToken) {
+    try {
+      const response = await api.post('/lista-espera', filtro, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`
+        },
+      });
+      
+      console.log('Resposta da API:', response.data);
+      
+      // Extrai o array 'content' da resposta
+      const dadosAPI = response.data?.content || [];
+      const total = response.data?.total || 0;
+      
+      if (Array.isArray(dadosAPI) && dadosAPI.length > 0) {
+        // Mapeia os dados reais para o formato esperado
+        const registrosFormatados = dadosAPI.map(normalizarRegistro);
+        setRegistros(registrosFormatados);
+        setTotalRegistros(total);
+        setUsandoMock(false);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao obter dados da lista de espera:', error);
+    }
+  }
+
 
   useEffect(() => {
+    const inicializarToken = async () => {
+      try {
+        let token = await AsyncStorage.getItem('authToken');
+        if (!token) {
+          token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzY2MTk3MDQsImV4cCI6MTc3NjYyNjkwNH0.g3HzcSSZqoS1bZOo14WfUMUD0bVvr23_I3jILXfbrz8Djrb000EhGhKt-e_W3yLM6iyYtX7AEdgKdW7jvWNe2g';
+          await AsyncStorage.setItem('authToken', token);
+        }
+        setAuthToken(token);
+      } catch (erro) {
+        console.error('Erro ao obter token:', erro);
+      }
+    };
+
+    inicializarToken();
+  }, []);
+
+  // Chamada a API quando mudar página, busca ou token
+  useEffect(() => {
+    if (!authToken) return;
+
     const carregarListaEspera = async () => {
       try {
-        const resposta = await fetch(ENDPOINTLISTAESPERA);
-
-        if (!resposta.ok) {
-          throw new Error('Erro ao carregar lista de espera');
-        }
-
-        const dados = await resposta.json();
-        const listaSegura = Array.isArray(dados) ? dados : dados?.itens;
-
-        if (!Array.isArray(listaSegura)) {
-          throw new Error('Formato de resposta inválido');
-        }
-
-        setRegistros(listaSegura.map(normalizarRegistro));
-        setUsandoMock(false);
+        setCarregando(true);
+        const offset = (paginaAtual - 1) * REGISTROSPORPAGINA;
+        
+        await getListaEspera({
+          nome: textoBusca.trim() || null,
+          offset: offset,
+          limit: REGISTROSPORPAGINA
+        }, authToken);
       } catch (erro) {
+        console.error('Erro ao carregar lista de espera:', erro);
+        // Fallback para mock em caso de erro
         setRegistros(listaMock);
         setUsandoMock(true);
       } finally {
         setCarregando(false);
       }
     };
+
     carregarListaEspera();
-  }, []);
+  }, [authToken, paginaAtual, textoBusca]);
 
   const colunas = useMemo(
     () => [
@@ -90,37 +185,12 @@ const listaEsperaScreen = () => {
     [],
   );
 
-  const registrosFiltrados = useMemo(() => {
-    const consultaNormalizada = textoBusca.trim().toLowerCase();
-
-    return registros.filter((registros) =>
-      registros.nomeAluno.toLowerCase().includes(consultaNormalizada),
-    );
-  }, [registros, textoBusca]);
-
   const totalPaginas = Math.max(
     1,
-    Math.ceil(registrosFiltrados.length / REGISTROSPORPAGINA),
+    Math.ceil(totalRegistros / REGISTROSPORPAGINA),
   );
 
-  useEffect(() => {
-    setPaginaAtual(1);
-  }, [textoBusca]);
-
-  useEffect(() => {
-    if (paginaAtual > totalPaginas) {
-      setPaginaAtual(totalPaginas);
-    }
-  }, [paginaAtual, totalPaginas]);
-
-  const inicioPagina = (paginaAtual - 1) * REGISTROSPORPAGINA;
-
-  const registrosPagina = registrosFiltrados.slice(
-    inicioPagina,
-    inicioPagina + REGISTROSPORPAGINA,
-  );
-
-  const linhasVazias = Math.max(0, REGISTROSPORPAGINA - registrosPagina.length);
+  const linhasVazias = Math.max(0, REGISTROSPORPAGINA - registros.length);
 
   return (
     <View
@@ -182,7 +252,7 @@ const listaEsperaScreen = () => {
           >
             <Button
               title="FILTRO"
-              onPress={() => {}}
+              onPress={() => { }}
               width={scale(88)}
               height={scale(30)}
               borderRadius={scale(4)}
@@ -209,7 +279,7 @@ const listaEsperaScreen = () => {
             ></Button>
             <Button
               title='CADASTRAR'
-              onPress={() => {}}
+              onPress={() => { }}
               width={scale(88)}
               height={scale(30)}
               borderRadius={scale(4)}
@@ -286,7 +356,7 @@ const listaEsperaScreen = () => {
                 </Text>
               ))}
             </View>
-            {registrosPagina.map((registro, indice) => (
+            {registros.map((registro, indice) => (
               <View
                 key={registro.id}
                 style={{
@@ -346,7 +416,7 @@ const listaEsperaScreen = () => {
                   paddingVertical: scale(8),
                   paddingHorizontal: scale(10),
                   backgroundColor:
-                    (registrosPagina.length + indiceLinha) % 2 === 0
+                    (registros.length + indiceLinha) % 2 === 0
                       ? '#ffffff'
                       : '#fafcff',
                   borderBottomWidth: indiceLinha === linhasVazias - 1 ? 0 : 1,
@@ -446,7 +516,7 @@ const listaEsperaScreen = () => {
             </Text>
             <TouchableOpacity
               onPress={() =>
-                setPaginaAtual((pagina) => Math.min(totalPaginas, pagina+1))
+                setPaginaAtual((pagina) => Math.min(totalPaginas, pagina + 1))
               }
               disabled={paginaAtual === totalPaginas}
               style={{
