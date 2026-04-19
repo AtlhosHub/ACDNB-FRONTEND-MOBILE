@@ -60,6 +60,26 @@ const obterCorIniciais = (nome) => {
   return PALETA_INICIAIS[Math.abs(hash) % PALETA_INICIAIS.length];
 };
 
+// Calcula dataEnvioFrom e dataEnvioTo baseado nos meses e ano selecionados
+const calcularIntervaloData = (meses, ano) => {
+  if (!meses || meses.length === 0) {
+    // Se nenhum mês selecionado, usar todo o ano
+    return {
+      dataEnvioFrom: `${ano}-01-01`,
+      dataEnvioTo: `${ano}-12-31`,
+    };
+  }
+
+  const indicesMeses = [...meses].sort((a, b) => a - b);
+  const mesInicio = indicesMeses[0];
+  const mesFim = indicesMeses[indicesMeses.length - 1];
+
+  return {
+    dataEnvioFrom: `${ano}-${String(mesInicio + 1).padStart(2, '0')}-01`,
+    dataEnvioTo: `${ano}-${String(mesFim + 1).padStart(2, '0')}-${new Date(ano, mesFim + 1, 0).getDate()}`,
+  };
+};
+
 const normalizarMensalidade = (item, i) => {
   // Trata dados da API real
   if (item.idMensalidade !== undefined) {
@@ -95,7 +115,7 @@ const MensalidadesScreen = () => {
   const [textoBusca, setTextoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroVisivel, setFiltroVisivel] = useState(false);
-  const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: null, tiposPagamento: [] });
+  const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: new Date().getFullYear(), tiposPagamento: [] });
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [authToken, setAuthToken] = useState(null);
@@ -121,6 +141,11 @@ const MensalidadesScreen = () => {
         setRegistros(registrosFormatados);
         setTotalRegistros(total);
         setUsandoMock(false);
+      } else {
+        // Se não há dados, limpar a lista anterior
+        setRegistros([]);
+        setTotalRegistros(0);
+        setUsandoMock(false);
       }
       
       return response.data;
@@ -134,11 +159,6 @@ const MensalidadesScreen = () => {
     const inicializarToken = async () => {
       try {
         let token = await AsyncStorage.getItem('authToken');
-        // tirar isso depois que o login estiver integrado
-        if (!token) {
-          token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzY2MzA1MDEsImV4cCI6MTc3NjYzNzcwMX0.W6XYfaeWtQNwA7Xdn5sOpdtm3zmIFl8BJvs8Y9jEsKGR7x7qm4gsdYP-Zf6frsisDuDPu8ZdjTiBI8XP6RQx7g';
-          await AsyncStorage.setItem('authToken', token);
-        }
         setAuthToken(token);
       } catch (erro) {
         console.error('Erro ao obter token:', erro);
@@ -162,16 +182,23 @@ const MensalidadesScreen = () => {
           ? filtrosAtivos.status.map((s) => s.toUpperCase())
           : [];
         
+        // Calcular intervalo de datas baseado nos meses selecionados
+        const { dataEnvioFrom, dataEnvioTo } = calcularIntervaloData(
+          filtrosAtivos.meses,
+          filtrosAtivos.ano
+        );
+        
         const filtro = {
           nome: textoBusca.trim() || null,
           status: statusFiltro.length > 0 ? statusFiltro : null,
           ativo: true,
-          dataEnvioFrom: '2025-01-01',
-          dataEnvioTo: new Date().toISOString().split('T')[0],
+          dataEnvioFrom: dataEnvioFrom,
+          dataEnvioTo: dataEnvioTo,
           offset: offset,
           limit: REGISTROS_POR_PAGINA
         };
 
+        console.log('Filtro enviado:', filtro);
         await getMensalidades(filtro, authToken);
       } catch (erro) {
         console.error('Erro ao carregar mensalidades:', erro);

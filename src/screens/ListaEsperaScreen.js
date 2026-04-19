@@ -101,11 +101,6 @@ const listaEsperaScreen = () => {
     const inicializarToken = async () => {
       try {
         let token = await AsyncStorage.getItem('authToken');
-        // tirar isso depois que o login estiver integrado, mockei o token só pra poder testar
-        if (!token) {
-          token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzY2MzA1MDEsImV4cCI6MTc3NjYzNzcwMX0.W6XYfaeWtQNwA7Xdn5sOpdtm3zmIFl8BJvs8Y9jEsKGR7x7qm4gsdYP-Zf6frsisDuDPu8ZdjTiBI8XP6RQx7g';
-          await AsyncStorage.setItem('authToken', token);
-        }
         setAuthToken(token);
       } catch (erro) {
         console.error('Erro ao obter token:', erro);
