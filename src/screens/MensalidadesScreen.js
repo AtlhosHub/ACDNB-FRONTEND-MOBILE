@@ -35,13 +35,13 @@ const PALETA_INICIAIS = [
 ];
 
 const STATUS_CONFIG = {
-  pago:     { label: 'Pago',     bg: '#EAF3DE', cor: '#27500A' },
+  pago: { label: 'Pago', bg: '#EAF3DE', cor: '#27500A' },
   pendente: { label: 'Pendente', bg: '#FAEEDA', cor: '#633806' },
   atrasado: { label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F' },
 };
 
 const BORDA_STATUS = {
-  pago:     '#639922',
+  pago: '#639922',
   pendente: '#BA7517',
   atrasado: '#E24B4A',
 };
@@ -60,13 +60,22 @@ const obterCorIniciais = (nome) => {
   return PALETA_INICIAIS[Math.abs(hash) % PALETA_INICIAIS.length];
 };
 
-// Calcula dataEnvioFrom e dataEnvioTo baseado nos meses e ano selecionados
 const calcularIntervaloData = (meses, ano) => {
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth(); // 0-11
+
+  // Se não tiver mês selecionado -> usar mês atual
   if (!meses || meses.length === 0) {
-    // Se nenhum mês selecionado, usar todo o ano
+    const anoUsado = ano || anoAtual;
+
     return {
-      dataEnvioFrom: `${ano}-01-01`,
-      dataEnvioTo: `${ano}-12-31`,
+      dataEnvioFrom: `${anoUsado}-${String(mesAtual + 1).padStart(2, '0')}-01`,
+      dataEnvioTo: `${anoUsado}-${String(mesAtual + 1).padStart(2, '0')}-${new Date(
+        anoUsado,
+        mesAtual + 1,
+        0
+      ).getDate()}`,
     };
   }
 
@@ -76,7 +85,11 @@ const calcularIntervaloData = (meses, ano) => {
 
   return {
     dataEnvioFrom: `${ano}-${String(mesInicio + 1).padStart(2, '0')}-01`,
-    dataEnvioTo: `${ano}-${String(mesFim + 1).padStart(2, '0')}-${new Date(ano, mesFim + 1, 0).getDate()}`,
+    dataEnvioTo: `${ano}-${String(mesFim + 1).padStart(2, '0')}-${new Date(
+      ano,
+      mesFim + 1,
+      0
+    ).getDate()}`,
   };
 };
 
@@ -106,9 +119,6 @@ const MensalidadesScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
 
-  const agora = new Date();
-  const tituloSecao = `MENSALIDADES - ${MESES_PT[agora.getMonth()]} - ${agora.getFullYear()}`;
-
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [usandoMock, setUsandoMock] = useState(false);
@@ -119,6 +129,7 @@ const MensalidadesScreen = () => {
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [authToken, setAuthToken] = useState(null);
+  const [textoBuscaDebounce, setTextoBuscaDebounce] = useState('');
 
   async function getMensalidades(filtro, authToken) {
     try {
@@ -128,12 +139,12 @@ const MensalidadesScreen = () => {
           Authorization: `Bearer ${authToken}`
         },
       });
-      
+
 
       // Extrai o array 'content' da resposta
       const dadosAPI = response.data?.content || [];
       const total = response.data?.total || 0;
-      
+
       if (Array.isArray(dadosAPI) && dadosAPI.length > 0) {
         // Mapeia os dados reais para o formato esperado
         const registrosFormatados = dadosAPI.map(normalizarMensalidade);
@@ -146,13 +157,24 @@ const MensalidadesScreen = () => {
         setTotalRegistros(0);
         setUsandoMock(false);
       }
-      
+
       return response.data;
     } catch (erro) {
       console.error('Erro ao obter dados de mensalidades:', erro);
       throw erro;
     }
   }
+
+  const tituloSecao = useMemo(() => {
+    const { meses, ano } = filtrosAtivos;
+
+    const hoje = new Date();
+    const mesIndex = (meses && meses.length > 0) ? meses[0] : hoje.getMonth();
+    const anoUsado = ano || hoje.getFullYear();
+
+    return `MENSALIDADES - ${MESES_PT[mesIndex]} - ${anoUsado}`;
+  }, [filtrosAtivos]);
+
 
   useEffect(() => {
     const inicializarToken = async () => {
@@ -175,20 +197,20 @@ const MensalidadesScreen = () => {
       try {
         setCarregando(true);
         const offset = (paginaAtual - 1) * REGISTROS_POR_PAGINA;
-        
+
         // Preparar filtros de status
-        const statusFiltro = filtrosAtivos.status.length > 0 
+        const statusFiltro = filtrosAtivos.status.length > 0
           ? filtrosAtivos.status.map((s) => s.toUpperCase())
           : [];
-        
+
         // Calcular intervalo de datas baseado nos meses selecionados
         const { dataEnvioFrom, dataEnvioTo } = calcularIntervaloData(
           filtrosAtivos.meses,
           filtrosAtivos.ano
         );
-        
+
         const filtro = {
-          nome: textoBusca.trim() || null,
+          nome: textoBuscaDebounce.trim() || null,
           status: statusFiltro.length > 0 ? statusFiltro : null,
           ativo: true,
           dataEnvioFrom: dataEnvioFrom,
@@ -209,7 +231,7 @@ const MensalidadesScreen = () => {
     };
 
     carregarMensalidades();
-  }, [authToken, paginaAtual, textoBusca, filtrosAtivos]);
+  }, [authToken, paginaAtual, textoBuscaDebounce, filtrosAtivos]);
 
   const totalPaginas = Math.max(
     1,
@@ -218,7 +240,7 @@ const MensalidadesScreen = () => {
 
   useEffect(() => {
     setPaginaAtual(1);
-  }, [textoBusca, filtrosAtivos]);
+  }, [textoBuscaDebounce, filtrosAtivos]);
 
   if (alunoSelecionado) {
     return (
@@ -228,6 +250,14 @@ const MensalidadesScreen = () => {
       />
     );
   }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setTextoBuscaDebounce(textoBusca);
+    }, 600); // tempo em ms (0.6s)
+
+    return () => clearTimeout(timeout);
+  }, [textoBusca]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f3f9f9' }}>
