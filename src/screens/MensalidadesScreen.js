@@ -129,8 +129,7 @@ const MensalidadesScreen = () => {
         },
       });
       
-      console.log('Resposta da API de Mensalidades:', response.data);
-      
+
       // Extrai o array 'content' da resposta
       const dadosAPI = response.data?.content || [];
       const total = response.data?.total || 0;
@@ -198,7 +197,6 @@ const MensalidadesScreen = () => {
           limit: REGISTROS_POR_PAGINA
         };
 
-        console.log('Filtro enviado:', filtro);
         await getMensalidades(filtro, authToken);
       } catch (erro) {
         console.error('Erro ao carregar mensalidades:', erro);
@@ -345,7 +343,7 @@ const MensalidadesScreen = () => {
                 <TouchableOpacity
                   key={item.id}
                   activeOpacity={0.7}
-                  onPress={() => setAlunoSelecionado(item)}
+                  onPress={() => setAlunoSelecionado(item.id)}
                   style={{
                     backgroundColor: '#ffffff',
                     // ✅ CORRIGIDO: border-radius 14px igual ao Figma

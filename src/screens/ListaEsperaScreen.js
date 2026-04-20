@@ -76,8 +76,6 @@ const listaEsperaScreen = () => {
         },
       });
       
-      console.log('Resposta da API:', response.data);
-      
       // Extrai o array 'content' da resposta
       const dadosAPI = response.data?.content || [];
       const total = response.data?.total || 0;

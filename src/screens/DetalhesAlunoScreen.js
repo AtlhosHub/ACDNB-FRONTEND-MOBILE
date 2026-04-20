@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,26 +8,83 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
+import { api } from '../../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatarCPF, formatarData } from '../utils/formatters';
 
-const NIVEIS_HABILIDADE = ['Iniciante', 'Intermediário', 'Avançado'];
+const NIVEIS_HABILIDADE = ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'];
 
 const STATUS_CONFIG = {
-  pago:     { label: 'Pago',     bg: '#EAF3DE', cor: '#27500A' },
+  pago: { label: 'Pago', bg: '#EAF3DE', cor: '#27500A' },
   pendente: { label: 'Pendente', bg: '#FAEEDA', cor: '#633806' },
   atrasado: { label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F' },
 };
 
+
 const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
+  const [authToken, setAuthToken] = useState(null);
+  const [alunoDetalhes, setAlunoDetalhes] = useState(null);
+  const [alunoObservacoes, setAlunoObservacoes] = useState(null);
+
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
 
   const [abaAtiva, setAbaAtiva] = useState('informacoes');
 
   // Futuramente virá de um GET ao backend
-  const nivelHabilidade = aluno?.nivelHabilidade ?? null;
-  const observacoes = aluno?.observacoes ?? null;
+  const nivelHabilidade =  alunoDetalhes?.nivel?.descricao ?? null;
+  const observacoes = alunoObservacoes?.[0]?.descricao ?? null;
 
   const statusConf = STATUS_CONFIG[aluno?.status] ?? STATUS_CONFIG.pendente;
+
+  async function getAlunoDetalhes(alunoId, authToken) {
+    try {
+      const response = await api.get(`/alunos/${alunoId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+      setAlunoDetalhes(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do aluno:', error);
+      throw error;
+    }
+  }
+
+  async function getAlunoObservacoes(alunoId, authToken) {
+    try {
+      const response = await api.get(`/observacao/${alunoId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+      setAlunoObservacoes(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar observações do aluno:', error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    const inicializarToken = async () => {
+      try {
+        let token = await AsyncStorage.getItem('authToken');
+        setAuthToken(token);
+
+        await getAlunoDetalhes(aluno, token);
+        await getAlunoObservacoes(aluno, token);
+      } catch (erro) {
+        console.error('Erro ao obter token:', erro);
+      }
+    };
+
+    inicializarToken();
+  }, []);
+
 
   const CampoLeitura = ({ label, valor }) => (
     <View style={{ marginBottom: scale(14) }}>
@@ -70,18 +127,18 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   const renderInformacoes = () => (
     <>
       {/* Dados do aluno — somente visualização */}
-      <CampoLeitura label="Nome" valor={aluno?.nomeAluno} />
-      <CampoLeitura label="Nome Social" valor={null} />
-      <CampoLeitura label="Gênero" valor={null} />
-      <CampoLeitura label="Data de Nascimento" valor={null} />
-      <CampoLeitura label="Nacionalidade" valor={null} />
-      <CampoLeitura label="RG" valor={null} />
-      <CampoLeitura label="CPF" valor={null} />
-      <CampoLeitura label="Estado Civil" valor={null} />
-      <CampoLeitura label="Profissão" valor={null} />
-      <CampoLeitura label="Telefone" valor={null} />
-      <CampoLeitura label="Celular" valor={null} />
-      <CampoLeitura label="Email" valor={null} />
+      <CampoLeitura label="Nome" valor={alunoDetalhes?.nome} />
+      <CampoLeitura label="Nome Social" valor={alunoDetalhes?.nomeSocial} />
+      <CampoLeitura label="Gênero" valor={alunoDetalhes?.genero} />
+      <CampoLeitura label="Data de Nascimento" valor={formatarData(alunoDetalhes?.dataNascimento)} />
+      <CampoLeitura label="Nacionalidade" valor={alunoDetalhes?.nacionalidade} />
+      <CampoLeitura label="RG" valor={alunoDetalhes?.rg} />
+      <CampoLeitura label="CPF" valor={formatarCPF(alunoDetalhes?.cpf)} />
+      {/* <CampoLeitura label="Estado Civil" valor={alunoDetalhes?.estadoCivil} /> --> COMENTADO PQ NÃO TEM ESTADO CIVIL */}
+      <CampoLeitura label="Profissão" valor={alunoDetalhes?.profissao} />
+      <CampoLeitura label="Telefone" valor={alunoDetalhes?.telefone} />
+      <CampoLeitura label="Celular" valor={alunoDetalhes?.celular} />
+      <CampoLeitura label="Email" valor={alunoDetalhes?.email} />
 
       {/* Radio somente leitura */}
       <View style={{ flexDirection: 'row', gap: scale(32), marginBottom: scale(20) }}>
@@ -90,8 +147,11 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
             Status de Presença
           </Text>
           <View style={{ flexDirection: 'row', gap: scale(14) }}>
-            {['Ativa', 'Inativa'].map((opt) => (
-              <View key={opt} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {[
+              { label: 'Ativa', value: true },
+              { label: 'Inativa', value: false }
+            ].map((opt) => (
+              <View key={opt.label} style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
                   style={{
                     width: scale(16),
@@ -100,22 +160,40 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
                     borderWidth: 2,
                     borderColor: 'rgba(0,0,0,0.2)',
                     marginRight: scale(5),
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
-                />
+                >
+                  {alunoDetalhes?.ativo === opt.value && (
+                    <View
+                      style={{
+                        width: scale(8),
+                        height: scale(8),
+                        borderRadius: scale(4),
+                        backgroundColor: '#000',
+                      }}
+                    />
+                  )}
+                </View>
                 <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919' }}>
-                  {opt}
+                  {opt.label}
                 </Text>
               </View>
             ))}
           </View>
         </View>
+
+        {/* ATESTADOS */}
         <View>
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919', marginBottom: scale(6) }}>
             Atestados
           </Text>
           <View style={{ flexDirection: 'row', gap: scale(14) }}>
-            {['Sim', 'Não'].map((opt) => (
-              <View key={opt} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {[
+              { label: 'Sim', value: true },
+              { label: 'Não', value: false }
+            ].map((opt) => (
+              <View key={opt.label} style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
                   style={{
                     width: scale(16),
@@ -124,10 +202,24 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
                     borderWidth: 2,
                     borderColor: 'rgba(0,0,0,0.2)',
                     marginRight: scale(5),
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
-                />
+                >
+                  {alunoDetalhes?.temAtestado === opt.value && (
+                    <View
+                      style={{
+                        width: scale(8),
+                        height: scale(8),
+                        borderRadius: scale(4),
+                        backgroundColor: '#000',
+                      }}
+                    />
+                  )}
+                </View>
+
                 <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919' }}>
-                  {opt}
+                  {opt.label}
                 </Text>
               </View>
             ))}
@@ -338,8 +430,8 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
           </TouchableOpacity>
         </View>
       </View>
-
-    <ScrollView
+      
+      <ScrollView
         contentContainerStyle={{
           paddingHorizontal: scale(24),
           paddingTop: scale(8),

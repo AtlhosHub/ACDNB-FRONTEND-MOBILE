@@ -30,3 +30,14 @@ export const formatarHorario = (horarioInicio, horarioFim) => {
     return '-';
   }
 };
+
+export const formatarCPF = (cpf) => {
+  if (!cpf) return '';
+
+  const cpfLimpo = cpf.replace(/\D/g, '');
+
+  return cpfLimpo
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1-$2');
+};
