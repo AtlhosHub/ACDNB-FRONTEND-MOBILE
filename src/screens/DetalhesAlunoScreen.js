@@ -25,6 +25,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   const [authToken, setAuthToken] = useState(null);
   const [alunoDetalhes, setAlunoDetalhes] = useState(null);
   const [alunoObservacoes, setAlunoObservacoes] = useState(null);
+  const [historicoPagamento, setHistoricoPagamento] = useState([]);
 
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
@@ -32,7 +33,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   const [abaAtiva, setAbaAtiva] = useState('informacoes');
 
   // Futuramente virá de um GET ao backend
-  const nivelHabilidade =  alunoDetalhes?.nivel?.descricao ?? null;
+  const nivelHabilidade = alunoDetalhes?.nivel?.descricao ?? null;
   const observacoes = alunoObservacoes?.[0]?.descricao ?? null;
 
   const statusConf = STATUS_CONFIG[aluno?.status] ?? STATUS_CONFIG.pendente;
@@ -69,6 +70,27 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
     }
   }
 
+  async function getHistoricoPagamento(alunoId, authToken) {
+    const filtro = {
+      idAluno: alunoId,
+      dateFrom: null,
+      dateTo: null,
+    }
+    try {
+      const response = await api.post(`/mensalidades/historicoMensalidade`, filtro, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+      setHistoricoPagamento(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar histórico de pagamento:', error);
+      throw error;
+    }
+  }
+
   useEffect(() => {
     const inicializarToken = async () => {
       try {
@@ -85,6 +107,11 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
     inicializarToken();
   }, []);
 
+  useEffect(() => {
+    if (abaAtiva === 'historico') {
+      getHistoricoPagamento(aluno, authToken);
+    }
+  }, [abaAtiva]);
 
   const CampoLeitura = ({ label, valor }) => (
     <View style={{ marginBottom: scale(14) }}>
@@ -307,9 +334,11 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
     </>
   );
 
-  const renderHistoricoPagamento = () => (
-    <View style={{ paddingTop: scale(8) }}>
+const renderHistoricoPagamento = () => (
+  <View style={{ paddingTop: scale(8) }}>
+    {historicoPagamento?.map((pagamento) => (
       <View
+        key={pagamento.id}
         style={{
           backgroundColor: '#FFFFFF',
           borderRadius: 12,
@@ -326,7 +355,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: scale(6) }}>
           <Text style={{ fontFamily: 'Poppins_500Medium', fontSize: scale(13), color: '#1a1a1a' }}>
-            {aluno?.nomeAluno}
+            {alunoDetalhes?.nome}
           </Text>
           <View
             style={{
@@ -341,29 +370,32 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
             </Text>
           </View>
         </View>
-        {aluno?.dataPagamento ? (
+
+        {pagamento?.dataPagamento ? (
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(12), color: '#777777' }}>
-            {aluno.dataPagamento}{aluno.metodoPagamento ? `  •  ${aluno.metodoPagamento}` : ''}
+            {pagamento.dataPagamento}{pagamento.formaPagamento ? `  •  ${pagamento.formaPagamento}` : ''}
           </Text>
         ) : (
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(12), color: '#777777' }}>
-            Sem pagamento registrado
+            Sem pagamento registrado - {formatarData(pagamento.dataVencimento)}
           </Text>
         )}
       </View>
-      <Text
-        style={{
-          fontFamily: 'Poppins_400Regular',
-          fontSize: scale(12),
-          color: 'rgba(0,0,0,0.4)',
-          textAlign: 'center',
-          marginTop: scale(16),
-        }}
-      >
-        Histórico completo disponível após integração com o backend
-      </Text>
-    </View>
-  );
+    ))}
+    <Text
+      style={{
+        fontFamily: 'Poppins_400Regular',
+        fontSize: scale(12),
+        color: 'rgba(0,0,0,0.4)',
+        textAlign: 'center',
+        marginTop: scale(16),
+      }}
+    >
+      Histórico completo disponível após integração com o backend
+    </Text>
+
+  </View>
+);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -430,7 +462,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: scale(24),
