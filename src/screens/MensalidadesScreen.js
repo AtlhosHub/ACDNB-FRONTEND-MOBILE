@@ -242,14 +242,6 @@ const MensalidadesScreen = () => {
     setPaginaAtual(1);
   }, [textoBuscaDebounce, filtrosAtivos]);
 
-  if (alunoSelecionado) {
-    return (
-      <DetalhesAlunoScreen
-        aluno={alunoSelecionado}
-        onVoltar={() => setAlunoSelecionado(null)}
-      />
-    );
-  }
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -258,6 +250,15 @@ const MensalidadesScreen = () => {
 
     return () => clearTimeout(timeout);
   }, [textoBusca]);
+
+  if (alunoSelecionado) {
+    return (
+      <DetalhesAlunoScreen
+        aluno={alunoSelecionado}
+        onVoltar={() => setAlunoSelecionado(null)}
+      />
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f3f9f9' }}>

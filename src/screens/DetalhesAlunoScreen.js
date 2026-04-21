@@ -391,7 +391,6 @@ const renderHistoricoPagamento = () => (
         marginTop: scale(16),
       }}
     >
-      Histórico completo disponível após integração com o backend
     </Text>
 
   </View>
