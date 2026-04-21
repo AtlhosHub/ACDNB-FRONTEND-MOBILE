@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,10 @@ import AppHeader from '../components/AppHeader';
 import Label from '../components/Label';
 import Button from '../components/Button';
 import { horariosMock } from '../mocks/horariosMock';
-import { formatDate } from '../utils/formatters';
+import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../utils/formatters';
+import { api } from '../../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CadastroInteressadoScreen = ({ navigation }) => {
   const { width: screenWidth } = useWindowDimensions();
@@ -29,7 +32,11 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   const [horarioPreferencia, setHorarioPreferencia] = useState('');
   const [nomeSocial, setNomeSocial] = useState('');
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [horarios] = useState(horariosMock);
+  // const [horarios] = useState(horariosMock);
+  const [authToken, setAuthToken] = useState(null);
+  const [showContatoPicker, setShowContatoPicker] = useState(false);
+  const [showNascimentoPicker, setShowNascimentoPicker] = useState(false);
+  const [horarios, setHorarios] = useState([]);
 
   const camposObrigatoriosPreenchidos =
     nome.trim() !== '' &&
@@ -40,6 +47,67 @@ const CadastroInteressadoScreen = ({ navigation }) => {
     celular.trim() !== '' &&
     horarioPreferencia.trim() !== '';
 
+
+  async function adicionarInteressado(authToken) {
+    try {
+      const payload = {
+        nome: nome,
+        email: email,
+        dataInteresse: formatToApiDateTime(dataContato),
+        celular: celular,
+        nomeSocial: nomeSocial,
+        genero: null,
+        dataNascimento: formatToApiDate(dataNascimento),
+        telefone: null,
+        dataInclusao: new Date().toISOString().slice(0, 19),
+        usuarioInclusao: 1, // substituir pelo id do usuário logado
+        horarioPrefId: horarioPreferencia
+      };
+
+      const response = await api.post('/lista-espera/adicionar', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+
+      console.log('Sucesso:', response.data);
+    } catch (error) {
+      console.error('Erro ao cadastrar:', error);
+    }
+  }
+
+  async function getHorarioPreferencia(token) {
+    try {
+      const response = await api.get('/horario-preferencia', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      setHorarios(response.data);
+
+    } catch (error) {
+      console.error("Erro ao buscar horários:", error);
+    }
+  }
+
+  useEffect(() => {
+    const inicializarToken = async () => {
+      try {
+        let token = await AsyncStorage.getItem('authToken');
+        setAuthToken(token);
+        if (token) {
+          getHorarioPreferencia(token);
+        }
+      } catch (erro) {
+        console.error('Erro ao obter token:', erro);
+      }
+    };
+
+    inicializarToken();
+  }, []);
+
   const FieldLabel = ({ text, required, infoIcon }) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: scale(4) }}>
       <Text
@@ -47,7 +115,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           fontFamily: 'Poppins_400Regular',
           fontSize: scale(13),
           color: '#1E1919',
-        }}  
+        }}
       >
         {text}
       </Text>
@@ -69,7 +137,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           activeOpacity={0.7}
           style={{ marginLeft: scale(4) }}
         >
-        <Ionicons name="help-circle" size={scale(16)} color="#286DA8" />
+          <Ionicons name="help-circle" size={scale(16)} color="#286DA8" />
         </TouchableOpacity>
       )}
     </View>
@@ -174,20 +242,69 @@ const CadastroInteressadoScreen = ({ navigation }) => {
 
         <View style={{ marginBottom: scale(14) }}>
           <FieldLabel text="Data de Contato" required />
-          <Label
-            value={dataContato}
-            onChangeText={(text) => setDataContato(formatDate(text))}
-            placeholder="DD/MM/AAAA"
-          />
+          <TouchableOpacity
+            onPress={() => setShowContatoPicker(true)}
+            style={{
+              height: 40,
+              borderWidth: 1,
+              borderColor: 'rgba(0,0,0,0.7)',
+              borderRadius: 10,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}
+          >
+            <Text style={{ color: dataContato ? '#1E1919' : '#999' }}>
+              {dataContato || 'Selecionar data'}
+            </Text>
+          </TouchableOpacity>
+
+          {showContatoPicker && (
+            <DateTimePicker
+              value={new Date()}
+              mode="date"
+              display="calendar"
+              onChange={(event, selectedDate) => {
+                setShowContatoPicker(false);
+                if (selectedDate) {
+                  setDataContato(formatDisplayDate(selectedDate));
+                }
+              }}
+            />
+          )}
         </View>
 
         <View style={{ marginBottom: scale(14) }}>
           <FieldLabel text="Data de Nascimento" required />
-          <Label
-            value={dataNascimento}
-            onChangeText={(text) => setDataNascimento(formatDate(text))}
-            placeholder="DD/MM/AAAA"
-          />
+
+          <TouchableOpacity
+            onPress={() => setShowNascimentoPicker(true)}
+            style={{
+              height: 40,
+              borderWidth: 1,
+              borderColor: 'rgba(0,0,0,0.7)',
+              borderRadius: 10,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}
+          >
+            <Text style={{ color: dataNascimento ? '#1E1919' : '#999' }}>
+              {dataNascimento || 'Selecionar data'}
+            </Text>
+          </TouchableOpacity>
+
+          {showNascimentoPicker && (
+            <DateTimePicker
+              value={new Date()}
+              mode="date"
+              display="spinner"
+              onChange={(event, selectedDate) => {
+                setShowNascimentoPicker(false);
+                if (selectedDate) {
+                  setDataNascimento(formatDisplayDate(selectedDate));
+                }
+              }}
+            />
+          )}
         </View>
 
         <View style={{ marginBottom: scale(14) }}>
@@ -217,16 +334,17 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             <Picker
               selectedValue={horarioPreferencia}
               onValueChange={(value) => setHorarioPreferencia(value)}
-              style={{
-                height: 40,
-                color: horarioPreferencia ? '#1E1919' : 'rgba(30, 25, 25, 0.45)',
-              }}
-              dropdownIconColor="#0D3C53"
             >
-              <Picker.Item label="Selecione um horário" value="" color="rgba(30, 25, 25, 0.45)" />
+              <Picker.Item label="Selecione um horário" value="" />
+
               {horarios.map((item) => (
-                <Picker.Item key={item.id} label={item.label} value={item.label} color="#1E1919" />
+                <Picker.Item
+                  key={item.id}
+                  label={`${item.horarioAulaInicio} - ${item.horarioAulaFim}`}
+                  value={item.id}
+                />
               ))}
+
             </Picker>
           </View>
         </View>
@@ -252,7 +370,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             backgroundColor={camposObrigatoriosPreenchidos ? '#286DA8' : '#D9D9D9'}
             textColor="#FFFFFF"
             disabled={!camposObrigatoriosPreenchidos}
-            onPress={() => {}}
+            onPress={() => { adicionarInteressado(authToken) }}
           />
         </View>
       </ScrollView>
