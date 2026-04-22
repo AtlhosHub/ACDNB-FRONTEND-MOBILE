@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
+  TextInput,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,7 +46,8 @@ const CadastroInteressadoScreen = ({ navigation }) => {
     dataNascimento.length === 10 &&
     email.trim() !== '' &&
     celular.trim() !== '' &&
-    horarioPreferencia.trim() !== '';
+    horarioPreferencia !== '';
+    // horarioPreferencia.trim() !== '';
 
 
   async function adicionarInteressado(authToken) {
@@ -59,7 +61,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         genero: null,
         dataNascimento: formatToApiDate(dataNascimento),
         telefone: null,
-        dataInclusao: new Date().toISOString().slice(0, 19),
+        dataInclusao: new Date().toISOString().slice(0, 10) + 'T00:00:00',
         usuarioInclusao: 1, // substituir pelo id do usuário logado
         horarioPrefId: horarioPreferencia
       };
@@ -70,7 +72,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           Authorization: `Bearer ${authToken}`,
         }
       });
-
+      alert("Interessado cadastrado com sucesso!");
       console.log('Sucesso:', response.data);
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
@@ -84,7 +86,6 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         }
       });
-
       setHorarios(response.data);
 
     } catch (error) {
@@ -230,15 +231,34 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Nome" required />
-          <Label value={nome} onChangeText={setNome} />
-        </View>
 
-        <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="CEP" required />
-          <Label value={cep} onChangeText={setCep} />
-        </View>
+        <FieldLabel text="Nome" required />
+        <TextInput
+          value={nome}
+          onChangeText={setNome}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
+
+        <FieldLabel text="CEP" required />
+        <TextInput
+          value={cep}
+          onChangeText={setCep}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
 
         <View style={{ marginBottom: scale(14) }}>
           <FieldLabel text="Data de Contato" required />
@@ -306,17 +326,32 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             />
           )}
         </View>
-
-        <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Email" required />
-          <Label value={email} onChangeText={setEmail} />
-        </View>
-
-        <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Celular" required />
-          <Label value={celular} onChangeText={setCelular} />
-        </View>
-
+        <FieldLabel text="Email" required />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
+        <FieldLabel text="Celular" required />
+        <TextInput
+          value={celular}
+          onChangeText={setCelular}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
         <View style={{ marginBottom: scale(14) }}>
           <FieldLabel text="Horário de Preferência" required />
           <View
@@ -348,12 +383,20 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             </Picker>
           </View>
         </View>
-
-        <View style={{ marginBottom: scale(32) }}>
-          <FieldLabel text="Nome Social" infoIcon />
-          <Label value={nomeSocial} onChangeText={setNomeSocial} />
-        </View>
-
+        <FieldLabel text="Nome Social" infoIcon />
+        <TextInput
+          value={nomeSocial}
+          onChangeText={setNomeSocial}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
+      
         <View style={{ flexDirection: 'row', gap: scale(12) }}>
           <Button
             title="Cancelar"

@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
@@ -283,21 +284,35 @@ const MensalidadesScreen = () => {
       >
         {/* Busca e filtro */}
         <View style={{ marginBottom: scale(10) }}>
-          <Label
-            value={textoBusca}
-            onChangeText={setTextoBusca}
-            width="100%"
-            placeholder="Nome do Aluno"
-            containerStyle={{
+          <View
+            style={{
+              width: "100%",
               height: scale(38),
               borderRadius: scale(8),
               borderColor: 'rgba(0,0,0,0.6)',
+              borderWidth: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: scale(8),
             }}
-            inputStyle={{ fontSize: scale(12), paddingRight: scale(38) }}
-            rightIcon={
-              <Ionicons name="search-outline" size={scale(16)} color="#1e1919" />
-            }
-          />
+          >
+            <TextInput
+              value={textoBusca}
+              onChangeText={setTextoBusca}
+              placeholder="Nome do Aluno"
+              style={{
+                flex: 1,
+                fontSize: scale(12),
+                paddingRight: scale(38),
+              }}
+            />
+
+            <Ionicons
+              name="search-outline"
+              size={scale(16)}
+              color="#1e1919"
+            />
+          </View>
           <View
             style={{
               marginTop: scale(8),
