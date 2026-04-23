@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,8 +15,10 @@ import AppHeader from '../components/AppHeader';
 import FiltroMensalidadesModal from '../components/FiltroMensalidadesModal';
 import { mensalidadesMock } from '../mocks/listaMock';
 import DetalhesAlunoScreen from './DetalhesAlunoScreen';
+import { api } from '../../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ENDPOINT_MENSALIDADES = 'http/';
+const ENDPOINT_MENSALIDADES = '/alunos/comprovantes';
 const REGISTROS_POR_PAGINA = 5;
 
 const MESES_PT = [
@@ -33,13 +36,13 @@ const PALETA_INICIAIS = [
 ];
 
 const STATUS_CONFIG = {
-  pago:     { label: 'Pago',     bg: '#EAF3DE', cor: '#27500A' },
+  pago: { label: 'Pago', bg: '#EAF3DE', cor: '#27500A' },
   pendente: { label: 'Pendente', bg: '#FAEEDA', cor: '#633806' },
   atrasado: { label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F' },
 };
 
 const BORDA_STATUS = {
-  pago:     '#639922',
+  pago: '#639922',
   pendente: '#BA7517',
   atrasado: '#E24B4A',
 };
@@ -58,20 +61,64 @@ const obterCorIniciais = (nome) => {
   return PALETA_INICIAIS[Math.abs(hash) % PALETA_INICIAIS.length];
 };
 
-const normalizarMensalidade = (item, i) => ({
-  id: String(item.id ?? i + 1),
-  nomeAluno: String(item.nomeAluno ?? item.nome ?? '-'),
-  dataPagamento: item.dataPagamento ?? null,
-  metodoPagamento: item.metodoPagamento ?? null,
-  status: String(item.status ?? 'pendente').toLowerCase(),
-});
+const calcularIntervaloData = (meses, ano) => {
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth(); // 0-11
+
+  // Se não tiver mês selecionado -> usar mês atual
+  if (!meses || meses.length === 0) {
+    const anoUsado = ano || anoAtual;
+
+    return {
+      dataEnvioFrom: `${anoUsado}-${String(mesAtual + 1).padStart(2, '0')}-01`,
+      dataEnvioTo: `${anoUsado}-${String(mesAtual + 1).padStart(2, '0')}-${new Date(
+        anoUsado,
+        mesAtual + 1,
+        0
+      ).getDate()}`,
+    };
+  }
+
+  const indicesMeses = [...meses].sort((a, b) => a - b);
+  const mesInicio = indicesMeses[0];
+  const mesFim = indicesMeses[indicesMeses.length - 1];
+
+  return {
+    dataEnvioFrom: `${ano}-${String(mesInicio + 1).padStart(2, '0')}-01`,
+    dataEnvioTo: `${ano}-${String(mesFim + 1).padStart(2, '0')}-${new Date(
+      ano,
+      mesFim + 1,
+      0
+    ).getDate()}`,
+  };
+};
+
+const normalizarMensalidade = (item, i) => {
+  // Trata dados da API real
+  if (item.idMensalidade !== undefined) {
+    return {
+      id: String(item.id ?? i + 1),
+      nomeAluno: String(item.nome ?? '-'),
+      dataPagamento: item.dataEnvio ?? null,
+      metodoPagamento: item.formaPagamento ?? null,
+      status: String(item.status ?? 'pendente').toLowerCase(),
+    };
+  }
+
+  // Trata dados do mock (fallback)
+  return {
+    id: String(item.id ?? i + 1),
+    nomeAluno: String(item.nomeAluno ?? item.nome ?? '-'),
+    dataPagamento: item.dataPagamento ?? null,
+    metodoPagamento: item.metodoPagamento ?? null,
+    status: String(item.status ?? 'pendente').toLowerCase(),
+  };
+};
 
 const MensalidadesScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
-
-  const agora = new Date();
-  const tituloSecao = `MENSALIDADES - ${MESES_PT[agora.getMonth()]} - ${agora.getFullYear()}`;
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -79,63 +126,131 @@ const MensalidadesScreen = () => {
   const [textoBusca, setTextoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroVisivel, setFiltroVisivel] = useState(false);
-  const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: null, tiposPagamento: [] });
+  const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: new Date().getFullYear(), tiposPagamento: [] });
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+  const [authToken, setAuthToken] = useState(null);
+  const [textoBuscaDebounce, setTextoBuscaDebounce] = useState('');
+
+  async function getMensalidades(filtro, authToken) {
+    try {
+      const response = await api.post(ENDPOINT_MENSALIDADES, filtro, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`
+        },
+      });
+
+
+      // Extrai o array 'content' da resposta
+      const dadosAPI = response.data?.content || [];
+      const total = response.data?.total || 0;
+
+      if (Array.isArray(dadosAPI) && dadosAPI.length > 0) {
+        // Mapeia os dados reais para o formato esperado
+        const registrosFormatados = dadosAPI.map(normalizarMensalidade);
+        setRegistros(registrosFormatados);
+        setTotalRegistros(total);
+        setUsandoMock(false);
+      } else {
+        // Se não há dados, limpar a lista anterior
+        setRegistros([]);
+        setTotalRegistros(0);
+        setUsandoMock(false);
+      }
+
+      return response.data;
+    } catch (erro) {
+      console.error('Erro ao obter dados de mensalidades:', erro);
+      throw erro;
+    }
+  }
+
+  const tituloSecao = useMemo(() => {
+    const { meses, ano } = filtrosAtivos;
+
+    const hoje = new Date();
+    const mesIndex = (meses && meses.length > 0) ? meses[0] : hoje.getMonth();
+    const anoUsado = ano || hoje.getFullYear();
+
+    return `MENSALIDADES - ${MESES_PT[mesIndex]} - ${anoUsado}`;
+  }, [filtrosAtivos]);
+
 
   useEffect(() => {
+    const inicializarToken = async () => {
+      try {
+        let token = await AsyncStorage.getItem('authToken');
+        setAuthToken(token);
+      } catch (erro) {
+        console.error('Erro ao obter token:', erro);
+      }
+    };
+
+    inicializarToken();
+  }, []);
+
+  // Chamada a API quando mudar página, busca, filtros ou token
+  useEffect(() => {
+    if (!authToken) return;
+
     const carregarMensalidades = async () => {
       try {
-        const resposta = await fetch(ENDPOINT_MENSALIDADES);
-        if (!resposta.ok) throw new Error('Erro ao carregar mensalidades');
-        const dados = await resposta.json();
-        const lista = Array.isArray(dados) ? dados : dados?.itens;
-        if (!Array.isArray(lista)) throw new Error('Formato de resposta inválido');
-        setRegistros(lista.map(normalizarMensalidade));
-        setUsandoMock(false);
-      } catch {
+        setCarregando(true);
+        const offset = (paginaAtual - 1) * REGISTROS_POR_PAGINA;
+
+        // Preparar filtros de status
+        const statusFiltro = filtrosAtivos.status.length > 0
+          ? filtrosAtivos.status.map((s) => s.toUpperCase())
+          : [];
+
+        // Calcular intervalo de datas baseado nos meses selecionados
+        const { dataEnvioFrom, dataEnvioTo } = calcularIntervaloData(
+          filtrosAtivos.meses,
+          filtrosAtivos.ano
+        );
+
+        const filtro = {
+          nome: textoBuscaDebounce.trim() || null,
+          status: statusFiltro.length > 0 ? statusFiltro : null,
+          ativo: true,
+          dataEnvioFrom: dataEnvioFrom,
+          dataEnvioTo: dataEnvioTo,
+          offset: offset,
+          limit: REGISTROS_POR_PAGINA
+        };
+
+        await getMensalidades(filtro, authToken);
+      } catch (erro) {
+        console.error('Erro ao carregar mensalidades:', erro);
+        // Fallback para mock em caso de erro
         setRegistros(mensalidadesMock.map(normalizarMensalidade));
         setUsandoMock(true);
       } finally {
         setCarregando(false);
       }
     };
-    carregarMensalidades();
-  }, []);
 
-  const registrosFiltrados = useMemo(() => {
-    const busca = textoBusca.trim().toLowerCase();
-    return registros.filter((r) => {
-      if (!r.nomeAluno.toLowerCase().includes(busca)) return false;
-      if (filtrosAtivos.status.length > 0 && !filtrosAtivos.status.includes(r.status)) return false;
-      if (filtrosAtivos.tiposPagamento.length > 0) {
-        const metodo = r.metodoPagamento ?? '';
-        if (!filtrosAtivos.tiposPagamento.some((t) => t.toLowerCase() === metodo.toLowerCase())) return false;
-      }
-      if (filtrosAtivos.meses.length > 0 && filtrosAtivos.ano != null && r.dataPagamento) {
-        const [dia, mes, ano] = r.dataPagamento.split('/');
-        const mesIdx = parseInt(mes, 10) - 1;
-        const anoNum = parseInt(ano, 10);
-        if (anoNum !== filtrosAtivos.ano || !filtrosAtivos.meses.includes(mesIdx)) return false;
-      }
-      return true;
-    });
-  }, [registros, textoBusca, filtrosAtivos]);
+    carregarMensalidades();
+  }, [authToken, paginaAtual, textoBuscaDebounce, filtrosAtivos]);
 
   const totalPaginas = Math.max(
     1,
-    Math.ceil(registrosFiltrados.length / REGISTROS_POR_PAGINA),
+    Math.ceil(totalRegistros / REGISTROS_POR_PAGINA),
   );
 
   useEffect(() => {
     setPaginaAtual(1);
-  }, [textoBusca, filtrosAtivos]);
+  }, [textoBuscaDebounce, filtrosAtivos]);
+
 
   useEffect(() => {
-    if (paginaAtual > totalPaginas) setPaginaAtual(totalPaginas);
-  }, [paginaAtual, totalPaginas]);
+    const timeout = setTimeout(() => {
+      setTextoBuscaDebounce(textoBusca);
+    }, 600); // tempo em ms (0.6s)
 
-  const inicio = (paginaAtual - 1) * REGISTROS_POR_PAGINA;
-  const registrosPagina = registrosFiltrados.slice(inicio, inicio + REGISTROS_POR_PAGINA);
+    return () => clearTimeout(timeout);
+  }, [textoBusca]);
 
   if (alunoSelecionado) {
     return (
@@ -169,21 +284,35 @@ const MensalidadesScreen = () => {
       >
         {/* Busca e filtro */}
         <View style={{ marginBottom: scale(10) }}>
-          <Label
-            value={textoBusca}
-            onChangeText={setTextoBusca}
-            width="100%"
-            placeholder="Nome do Aluno"
-            containerStyle={{
+          <View
+            style={{
+              width: "100%",
               height: scale(38),
               borderRadius: scale(8),
               borderColor: 'rgba(0,0,0,0.6)',
+              borderWidth: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: scale(8),
             }}
-            inputStyle={{ fontSize: scale(12), paddingRight: scale(38) }}
-            rightIcon={
-              <Ionicons name="search-outline" size={scale(16)} color="#1e1919" />
-            }
-          />
+          >
+            <TextInput
+              value={textoBusca}
+              onChangeText={setTextoBusca}
+              placeholder="Nome do Aluno"
+              style={{
+                flex: 1,
+                fontSize: scale(12),
+                paddingRight: scale(38),
+              }}
+            />
+
+            <Ionicons
+              name="search-outline"
+              size={scale(16)}
+              color="#1e1919"
+            />
+          </View>
           <View
             style={{
               marginTop: scale(8),
@@ -248,7 +377,7 @@ const MensalidadesScreen = () => {
           </View>
         ) : (
           <View style={{ gap: scale(10) }}>
-            {registrosPagina.map((item) => {
+            {registros.map((item) => {
               const iniciais = obterIniciais(item.nomeAluno);
               // ✅ CORRIGIDO: desestrutura { bg, text } da paleta
               const { bg: bgCirculo, text: textCirculo } = obterCorIniciais(item.nomeAluno);
@@ -260,7 +389,7 @@ const MensalidadesScreen = () => {
                 <TouchableOpacity
                   key={item.id}
                   activeOpacity={0.7}
-                  onPress={() => setAlunoSelecionado(item)}
+                  onPress={() => setAlunoSelecionado(item.id)}
                   style={{
                     backgroundColor: '#ffffff',
                     // ✅ CORRIGIDO: border-radius 14px igual ao Figma

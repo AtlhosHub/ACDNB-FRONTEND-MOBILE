@@ -20,7 +20,7 @@ const MESES_ABREV = [
 const TIPOS_PAGAMENTO = ['Pix', 'Dinheiro'];
 
 const STATUS_OPCOES = [
-  { key: 'pago',     label: 'Pago',     bg: '#EAF3DE', cor: '#27500A', borda: '#639922' },
+  { key: 'pago', label: 'Pago', bg: '#EAF3DE', cor: '#27500A', borda: '#639922' },
   { key: 'pendente', label: 'Pendente', bg: '#FAEEDA', cor: '#633806', borda: '#BA7517' },
   { key: 'atrasado', label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F', borda: '#E24B4A' },
 ];
@@ -88,10 +88,16 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
   ).current;
 
   const alternarStatus = (key) =>
-    setFiltros((f) => ({ ...f, status: alternarItem(f.status, key) }));
+    setFiltros((f) => ({
+      ...f,
+      status: f.status.includes(key) ? [] : [key],
+    }));
 
   const alternarMes = (indice) =>
-    setFiltros((f) => ({ ...f, meses: alternarItem(f.meses, indice) }));
+    setFiltros((f) => ({
+      ...f,
+      meses: f.meses.includes(indice) ? [] : [indice],
+    }));
 
   const alternarTipo = (tipo) =>
     setFiltros((f) => ({ ...f, tiposPagamento: alternarItem(f.tiposPagamento, tipo) }));
@@ -272,8 +278,8 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
 
           <View style={styles.divider} />
 
-          {/* TIPO PAGAMENTO */}
-          <Text style={[styles.secaoLabel, { fontSize: scale(10), marginTop: scale(16) }]}>TIPO DE PAGAMENTO</Text>
+          {/* TIPO PAGAMENTO --> COMENTADO PQ NO BACK NÃO TEM FILTRO DE TIPO PAGAMENTO*/}
+          {/* <Text style={[styles.secaoLabel, { fontSize: scale(10), marginTop: scale(16) }]}>TIPO DE PAGAMENTO</Text>
           <View style={[styles.rowGap, { gap: scale(8), flexWrap: 'wrap', marginBottom: scale(16) }]}>
             {TIPOS_PAGAMENTO.map((tipo) => {
               const ativo = filtros.tiposPagamento.includes(tipo);
@@ -302,7 +308,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
                 </TouchableOpacity>
               );
             })}
-          </View>
+          </View> */}
 
           {/* Resumo de filtros ativos */}
           <View
