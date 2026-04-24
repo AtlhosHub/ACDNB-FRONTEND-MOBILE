@@ -8,6 +8,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import ListaEsperaScreen from './src/screens/ListaEsperaScreen';
 import MensalidadesScreen from './src/screens/MensalidadesScreen';
 import CadastroInteressadoScreen from './src/screens/CadastroInteressadoScreen';
+import TrainerAIScreen from './src/screens/TrainerAIScreen';
 
 const TELAS = [
   { key: 'login',       label: 'Login',        component: CadastroInteressadoScreen },
