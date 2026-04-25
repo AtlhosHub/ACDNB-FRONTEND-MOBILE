@@ -13,6 +13,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import ListaEsperaScreen from './src/screens/ListaEsperaScreen';
 import MensalidadesScreen from './src/screens/MensalidadesScreen';
 import TrainerAIScreen from './src/screens/TrainerAIScreen';
+import CadastroInteressadoScreen from './src/screens/CadastroInteressadoScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -84,6 +85,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="CadastroInteressado" component={CadastroInteressadoScreen} />
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>

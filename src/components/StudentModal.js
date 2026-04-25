@@ -15,7 +15,7 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
   const [search, setSearch] = useState("");
 
   const filtered = students.filter((s) =>
-    s?.name?.toLowerCase().includes(search.toLowerCase())
+    s?.nome?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -53,7 +53,7 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
           contentContainerStyle={styles.list}
           renderItem={({ item, index }) => {
             const isSelected  = selected.has(item.id);
-            const levelColor  = LEVEL_COLOR[item.level] ?? null;
+            const levelColor  = LEVEL_COLOR[item.nivel] ?? null;
             const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
 
             return (
@@ -71,17 +71,17 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
 
                 {/* Informações */}
                 <View style={styles.info}>
-                  <Text style={styles.name}>{item.name}</Text>
+                  <Text style={styles.name}>{item.nome}</Text>
                   {levelColor && (
                     <View style={[styles.badge, { backgroundColor: levelColor.bg }]}>
                       <Text style={[styles.badgeText, { color: levelColor.text }]}>
-                        {LEVEL_LABEL[item.level]}
+                        {LEVEL_LABEL[item.nivel]}
                       </Text>
                     </View>
                   )}
-                  {item.obs ? (
+                  {item.observacoes?.length > 0 ? (
                     <Text style={styles.obs} numberOfLines={2}>
-                      Obs: {item.obs}
+                      Obs: {item.observacoes[0]}
                     </Text>
                   ) : null}
                 </View>

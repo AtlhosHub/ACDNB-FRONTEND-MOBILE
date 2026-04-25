@@ -106,7 +106,10 @@ export async function gerarPlano(message, students) {
     }),
   });
 
-  if (!response.ok) throw new Error(`Erro: ${response.status}`);
+  if (!response.ok) {
+    if (response.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
+    throw new Error(`Erro: ${response.status}`);
+  }
   return response.text();
 }
 
@@ -127,6 +130,9 @@ export async function transcreverEGerarPlano(audioBase64, mimeType, students) {
     }),
   });
 
-  if (!response.ok) throw new Error(`Erro ao transcrever: ${response.status}`);
+  if (!response.ok) {
+    if (response.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
+    throw new Error(`Erro ao transcrever: ${response.status}`);
+  }
   return response.text();
 }

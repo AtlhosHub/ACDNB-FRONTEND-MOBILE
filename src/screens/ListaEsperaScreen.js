@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
 import Label from '../components/Label';
@@ -57,6 +58,7 @@ const normalizarRegistro = (registro, indice) => {
 const listaEsperaScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const navigation = useNavigation();
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -201,35 +203,8 @@ const listaEsperaScreen = () => {
             }}
           >
             <Button
-              title="FILTRO"
-              onPress={() => { }}
-              width={scale(88)}
-              height={scale(30)}
-              borderRadius={scale(4)}
-              backgroundColor="#ffffff"
-              textColor="#286da8"
-              borderWidth={1}
-              borderColor="#286da8"
-              fontSize={scale(10)}
-              style={{
-                flexDirection: 'row',
-                paddingHorizontal: scale(8),
-                marginRight: scale(8)
-              }}
-              textStyle={{
-                marginRight: 0,
-              }}
-              rightIcon={
-                <Ionicons
-                  name='options-outline'
-                  size={scale(12)}
-                  color='#286da8'
-                />
-              }
-            ></Button>
-            <Button
               title='CADASTRAR'
-              onPress={() => { }}
+              onPress={() => navigation.navigate('CadastroInteressado')}
               width={scale(88)}
               height={scale(30)}
               borderRadius={scale(4)}

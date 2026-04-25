@@ -17,11 +17,11 @@ export function ContextPills({ students, onRemove }) {
       contentContainerStyle={styles.content}
     >
       {students.map((s) => {
-        const color = LEVEL_COLOR[s.level] ?? { bg: "#E6F1FB", text: "#0C447C" };
+        const color = LEVEL_COLOR[s.nivel] ?? { bg: "#E6F1FB", text: "#0C447C" };
         return (
           <View key={s.id} style={[styles.pill, { backgroundColor: color.bg }]}>
             <Text style={[styles.pillText, { color: color.text }]}>
-              {s.name}{s.level ? ` · ${LEVEL_LABEL[s.level]}` : ""}
+              {s.nome}{s.nivel ? ` · ${LEVEL_LABEL[s.nivel]}` : ""}
             </Text>
             <TouchableOpacity onPress={() => onRemove(s.id)} hitSlop={8}>
               <Text style={[styles.pillRemove, { color: color.text }]}>✕</Text>
