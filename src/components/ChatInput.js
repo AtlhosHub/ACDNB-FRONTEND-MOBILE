@@ -15,11 +15,36 @@ export function ChatInput({
   onChange,
   onSend,
   onMicPress,
+  onMicDiscard,
   isRecording,
   isTranscribing,
   isSending,
 }) {
   const canSend = value.trim().length > 0 && !isSending;
+
+  if (isRecording) {
+    return (
+      <View style={styles.wrapper}>
+        <View style={styles.recordingRow}>
+          {/* Descartar */}
+          <TouchableOpacity style={styles.discardBtn} onPress={onMicDiscard} activeOpacity={0.7}>
+            <Ionicons name="trash-outline" size={22} color="#E24B4A" />
+          </TouchableOpacity>
+
+          {/* Indicador central */}
+          <View style={styles.recordingIndicator}>
+            <View style={styles.recDot} />
+            <Text style={styles.recText}>Gravando...</Text>
+          </View>
+
+          {/* Confirmar / enviar */}
+          <TouchableOpacity style={styles.confirmBtn} onPress={onMicPress} activeOpacity={0.7}>
+            <Ionicons name="checkmark" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrapper}>
@@ -28,15 +53,7 @@ export function ChatInput({
       {isTranscribing && (
         <View style={styles.statusBar}>
           <ActivityIndicator size="small" color={BRAND_BLUE} />
-          <Text style={styles.statusText}>Transcrevendo áudio com Gemini...</Text>
-        </View>
-      )}
-
-      {/* Barra de status — gravando */}
-      {isRecording && !isTranscribing && (
-        <View style={styles.statusBar}>
-          <View style={styles.recDot} />
-          <Text style={[styles.statusText, styles.recText]}>Gravando... toque para parar</Text>
+          <Text style={styles.statusText}>Analisando solicitação...</Text>
         </View>
       )}
 
@@ -56,16 +73,12 @@ export function ChatInput({
 
         {/* Botão de microfone */}
         <TouchableOpacity
-          style={[styles.iconBtn, isRecording && styles.iconBtnRecording]}
+          style={styles.iconBtn}
           onPress={onMicPress}
           disabled={isTranscribing}
           activeOpacity={0.7}
         >
-          <Ionicons
-            name={isRecording ? "stop" : "mic"}
-            size={20}
-            color={isRecording ? "#fff" : "#555"}
-          />
+          <Ionicons name="mic" size={20} color="#555" />
         </TouchableOpacity>
 
         {/* Botão enviar */}
@@ -118,7 +131,12 @@ const styles = StyleSheet.create({
   },
 
   iconBtn:         { width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center", borderWidth: 0.5, borderColor: "#ddd", backgroundColor: "#f5f6fa", flexShrink: 0 },
-  iconBtnRecording:{ backgroundColor: "#E24B4A", borderColor: "#E24B4A" },
   iconBtnSend:     { backgroundColor: BRAND_BLUE, borderColor: BRAND_BLUE },
   iconBtnDisabled: { opacity: 0.4 },
+
+  // Gravação estilo WhatsApp
+  recordingRow:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 6 },
+  recordingIndicator:{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  discardBtn:        { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", backgroundColor: "#fff0f0", borderWidth: 1, borderColor: "#E24B4A" },
+  confirmBtn:        { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", backgroundColor: "#22c55e" },
 });

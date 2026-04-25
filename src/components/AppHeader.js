@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const backgroundImage = require('../assets/images/background.png');
 
 const AppHeader = ({ subtitulo, onBackPress }) => {
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={{ width: '100%' }}>
@@ -13,7 +15,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
         style={{
           width: '100%',
           backgroundColor: '#286DA8',
-          paddingTop: scale(16),
+          paddingTop: insets.top + scale(16),
           paddingBottom: scale(14),
           paddingHorizontal: scale(18),
           flexDirection: 'row',
@@ -81,7 +83,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
         style={{
           position: 'absolute',
           left: scale(10),
-          top: scale(86),
+          top: insets.top + scale(86),
           flexDirection: 'row',
           alignItems: 'center',
           paddingVertical: scale(4),
@@ -91,7 +93,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
           style={{
             fontFamily: 'Poppins_500Medium',
             fontSize: scale(14),
-            color: '#0D3C53',
+            color: '#1e4e66',
           }}
         >
           ← Voltar

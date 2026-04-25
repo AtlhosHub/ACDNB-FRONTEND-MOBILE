@@ -1,4 +1,53 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+export const TOKEN_KEY = '@smash:token';
+
+export async function login(usuario, senha) {
+  let response;
+  try {
+    response = await fetch(`${BASE_URL}auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: usuario, password: senha }),
+    });
+  } catch {
+    throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão.');
+  }
+
+  if (response.status === 401) {
+    throw new Error('Senha incorreta.');
+  }
+  if (response.status === 404) {
+    throw new Error('Usuário não encontrado.');
+  }
+  if (!response.ok) {
+    throw new Error('Erro interno no servidor. Tente novamente mais tarde.');
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('Resposta inválida do servidor. Tente novamente.');
+  }
+
+  const token = data.token ?? data.accessToken ?? data.access_token;
+
+  if (!token) {
+    throw new Error('Erro interno no servidor. Tente novamente mais tarde.');
+  }
+
+  await AsyncStorage.setItem(TOKEN_KEY, token);
+  return token;
+}
+
+export async function logout() {
+  await AsyncStorage.removeItem(TOKEN_KEY);
+}
+
+
 
 export async function getAlunos() {
   const response = await fetch(`${BASE_URL}/trainer/alunos`, {

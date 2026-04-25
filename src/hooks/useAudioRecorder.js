@@ -43,6 +43,15 @@ export function useAudioRecorder() {
   };
 
 
+  const cancelRecording = async () => {
+    if (!recordingRef.current) return;
+    setIsRecording(false);
+    try {
+      await recordingRef.current.stopAndUnloadAsync();
+    } catch (_) {}
+    recordingRef.current = null;
+  };
+
   const stopRecording = async (students = []) => {
     if (!recordingRef.current) return "";
 
@@ -71,5 +80,5 @@ export function useAudioRecorder() {
     }
   };
 
-  return { isRecording, isTranscribing, startRecording, stopRecording };
+  return { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording };
 }

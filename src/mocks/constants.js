@@ -21,5 +21,5 @@ export const AVATAR_COLORS = [
   { bg: "#EEEDFE", text: "#3C3489" },
 ];
 
-export const BRAND_BLUE       = "#1652A1";
+export const BRAND_BLUE       = "#286DA8";
 export const BRAND_BLUE_LIGHT = "#E6F1FB";

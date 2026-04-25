@@ -3,13 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BRAND_BLUE }       from "../mocks/constants";
 import { getAlunos }        from "../services/api";
@@ -104,13 +103,16 @@ export default function TrainerAIScreen() {
     }
   };
 
+  const handleMicDiscard = async () => {
+    await audio.cancelRecording();
+  };
+
   const handleSavePdf = (planContent) => {
     plan.savePdf(planContent, selectedStudents);
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor={BRAND_BLUE} barStyle="light-content" />
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
 
       {/* Cabeçalho */}
       <View style={styles.header}>
@@ -166,6 +168,7 @@ export default function TrainerAIScreen() {
           onChange={setInput}
           onSend={handleSend}
           onMicPress={handleMic}
+          onMicDiscard={handleMicDiscard}
           isRecording={audio.isRecording}
           isTranscribing={audio.isTranscribing}
           isSending={plan.isLoading}

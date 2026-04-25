@@ -5,9 +5,12 @@ import {
   ScrollView,
   Image,
   useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import Label from '../components/Label';
+import { login } from '../services/api';
 
 const bolinhaImage = require('../assets/images/orange_ball.png');
 const iconeImage = require('../assets/images/ACDNB_icon.png');
@@ -15,6 +18,9 @@ const iconeImage = require('../assets/images/ACDNB_icon.png');
 const LoginScreen = () => {
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const navigation = useNavigation();
 
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
@@ -26,6 +32,29 @@ const LoginScreen = () => {
   const containerHeight = scale(590);
   const iconWidth = Math.min(screenWidth * 0.195, 73);
   const iconHeight = (iconWidth * 75) / 73;
+
+  const handleLogin = async () => {
+    setErro('');
+
+    if (!usuario.trim()) {
+      setErro('Informe o nome de usuário.');
+      return;
+    }
+    if (!senha.trim()) {
+      setErro('Informe a senha.');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await login(usuario.trim(), senha);
+      navigation.replace('Main');
+    } catch (e) {
+      setErro(e.message ?? 'Erro inesperado. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <ScrollView
@@ -171,6 +200,21 @@ const LoginScreen = () => {
               <Label value={senha} onChangeText={setSenha} width="100%" placeholder="" isPassword />
             </View>
 
+            {!!erro && (
+              <Text
+                style={{
+                  fontFamily: 'Poppins_400Regular',
+                  fontSize: scale(13),
+                  color: '#C0392B',
+                  textAlign: 'center',
+                  marginBottom: scale(12),
+                  paddingHorizontal: scale(4),
+                }}
+              >
+                {erro}
+              </Text>
+            )}
+
             <View
               style={{
                 width: '100%',
@@ -190,11 +234,15 @@ const LoginScreen = () => {
               </Text>
             </View>
 
-            <Button
-              title="Entrar"
-              width="100%"
-              onPress={() => console.log('Login pressionado', { usuario, senha })}
-            />
+            {carregando ? (
+              <ActivityIndicator size="large" color="#286DA8" style={{ marginTop: scale(8) }} />
+            ) : (
+              <Button
+                title="Entrar"
+                width="100%"
+                onPress={handleLogin}
+              />
+            )}
           </View>
         </View>
     </ScrollView>
