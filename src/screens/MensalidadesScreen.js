@@ -16,7 +16,6 @@ import FiltroMensalidadesModal from '../components/FiltroMensalidadesModal';
 import { mensalidadesMock } from '../mocks/listaMock';
 import DetalhesAlunoScreen from './DetalhesAlunoScreen';
 import { api } from '../../api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ENDPOINT_MENSALIDADES = '/alunos/comprovantes';
 const REGISTROS_POR_PAGINA = 5;
@@ -129,17 +128,11 @@ const MensalidadesScreen = () => {
   const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: new Date().getFullYear(), tiposPagamento: [] });
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
-  const [authToken, setAuthToken] = useState(null);
   const [textoBuscaDebounce, setTextoBuscaDebounce] = useState('');
 
-  async function getMensalidades(filtro, authToken) {
+  async function getMensalidades(filtro) {
     try {
-      const response = await api.post(ENDPOINT_MENSALIDADES, filtro, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-      });
+      const response = await api.post(ENDPOINT_MENSALIDADES, filtro);
 
 
       // Extrai o array 'content' da resposta
@@ -177,34 +170,17 @@ const MensalidadesScreen = () => {
   }, [filtrosAtivos]);
 
 
+  // Chamada a API quando mudar página, busca ou filtros
   useEffect(() => {
-    const inicializarToken = async () => {
-      try {
-        let token = await AsyncStorage.getItem('authToken');
-        setAuthToken(token);
-      } catch (erro) {
-        console.error('Erro ao obter token:', erro);
-      }
-    };
-
-    inicializarToken();
-  }, []);
-
-  // Chamada a API quando mudar página, busca, filtros ou token
-  useEffect(() => {
-    if (!authToken) return;
-
     const carregarMensalidades = async () => {
       try {
         setCarregando(true);
         const offset = (paginaAtual - 1) * REGISTROS_POR_PAGINA;
 
-        // Preparar filtros de status
         const statusFiltro = filtrosAtivos.status.length > 0
           ? filtrosAtivos.status.map((s) => s.toUpperCase())
           : [];
 
-        // Calcular intervalo de datas baseado nos meses selecionados
         const { dataEnvioFrom, dataEnvioTo } = calcularIntervaloData(
           filtrosAtivos.meses,
           filtrosAtivos.ano
@@ -220,10 +196,9 @@ const MensalidadesScreen = () => {
           limit: REGISTROS_POR_PAGINA
         };
 
-        await getMensalidades(filtro, authToken);
+        await getMensalidades(filtro);
       } catch (erro) {
         console.error('Erro ao carregar mensalidades:', erro);
-        // Fallback para mock em caso de erro
         setRegistros(mensalidadesMock.map(normalizarMensalidade));
         setUsandoMock(true);
       } finally {
@@ -232,7 +207,7 @@ const MensalidadesScreen = () => {
     };
 
     carregarMensalidades();
-  }, [authToken, paginaAtual, textoBuscaDebounce, filtrosAtivos]);
+  }, [paginaAtual, textoBuscaDebounce, filtrosAtivos]);
 
   const totalPaginas = Math.max(
     1,

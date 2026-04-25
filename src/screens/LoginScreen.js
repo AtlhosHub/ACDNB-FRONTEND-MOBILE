@@ -175,9 +175,9 @@ const LoginScreen = () => {
                   marginBottom: scale(8),
                 }}
               >
-                Usuário
+                E-mail
               </Text>
-              <Label value={usuario} onChangeText={setUsuario} width="100%" placeholder="" />
+              <Label value={usuario} onChangeText={setUsuario} width="100%" placeholder="" keyboardType="email-address" autoCapitalize="none" />
             </View>
 
             <View

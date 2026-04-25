@@ -9,7 +9,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
 import { api } from '../../api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatarCPF, formatarData } from '../utils/formatters';
 
 const NIVEIS_HABILIDADE = ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'];
@@ -22,7 +21,6 @@ const STATUS_CONFIG = {
 
 
 const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
-  const [authToken, setAuthToken] = useState(null);
   const [alunoDetalhes, setAlunoDetalhes] = useState(null);
   const [alunoObservacoes, setAlunoObservacoes] = useState(null);
   const [historicoPagamento, setHistoricoPagamento] = useState([]);
@@ -38,14 +36,9 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
 
   const statusConf = STATUS_CONFIG[aluno?.status] ?? STATUS_CONFIG.pendente;
 
-  async function getAlunoDetalhes(alunoId, authToken) {
+  async function getAlunoDetalhes(alunoId) {
     try {
-      const response = await api.get(`/alunos/${alunoId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        }
-      });
+      const response = await api.get(`/alunos/${alunoId}`);
       setAlunoDetalhes(response.data);
       return response.data;
     } catch (error) {
@@ -54,14 +47,9 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
     }
   }
 
-  async function getAlunoObservacoes(alunoId, authToken) {
+  async function getAlunoObservacoes(alunoId) {
     try {
-      const response = await api.get(`/observacao/${alunoId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        }
-      });
+      const response = await api.get(`/observacao/${alunoId}`);
       setAlunoObservacoes(response.data);
       return response.data;
     } catch (error) {
@@ -70,19 +58,14 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
     }
   }
 
-  async function getHistoricoPagamento(alunoId, authToken) {
+  async function getHistoricoPagamento(alunoId) {
     const filtro = {
       idAluno: alunoId,
       dateFrom: null,
       dateTo: null,
-    }
+    };
     try {
-      const response = await api.post(`/mensalidades/historicoMensalidade`, filtro, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        }
-      });
+      const response = await api.post(`/mensalidades/historicoMensalidade`, filtro);
       setHistoricoPagamento(response.data);
       return response.data;
     } catch (error) {
@@ -92,24 +75,21 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   }
 
   useEffect(() => {
-    const inicializarToken = async () => {
+    const carregarDados = async () => {
       try {
-        let token = await AsyncStorage.getItem('authToken');
-        setAuthToken(token);
-
-        await getAlunoDetalhes(aluno, token);
-        await getAlunoObservacoes(aluno, token);
+        await getAlunoDetalhes(aluno);
+        await getAlunoObservacoes(aluno);
       } catch (erro) {
-        console.error('Erro ao obter token:', erro);
+        console.error('Erro ao carregar dados do aluno:', erro);
       }
     };
 
-    inicializarToken();
+    carregarDados();
   }, []);
 
   useEffect(() => {
     if (abaAtiva === 'historico') {
-      getHistoricoPagamento(aluno, authToken);
+      getHistoricoPagamento(aluno);
     }
   }, [abaAtiva]);
 
