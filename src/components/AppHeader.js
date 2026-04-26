@@ -3,7 +3,7 @@ import { useScale } from '../../utils/scale';
 
 const backgroundImage = require('../assets/images/background.png');
 
-const AppHeader = ({ subtitle, onBackPress }) => {
+const AppHeader = ({ subtitulo, onBackPress }) => {
     const scale = useScale();
 
     return (
@@ -50,7 +50,7 @@ const AppHeader = ({ subtitle, onBackPress }) => {
                             color: '#FFFFFF',
                         }}
                     >
-                        {subtitle}
+                        {subtitulo}
                     </Text>
                 </View>
 
