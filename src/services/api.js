@@ -1,45 +1,32 @@
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const TOKEN_KEY = 'AuthToken';
 
-async function getToken(){
-  return await AsyncStorage.getItem(TOKEN_KEY)
-}
+export const api = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
+});
 
-async function authHeaders(extra={}){
-  const token = await getToken();
-  return {'Content-Type':'application/json',
-    ...(token? {Authorization:`Bearer ${token}`}:{}),
-    ...extra,
-  };
-}
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem(TOKEN_KEY);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export async function login(usuario, senha) {
   let response;
   try {
-    response = await fetch(`${BASE_URL}/usuarios/login`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email: usuario, senha }),
-    });
-  } catch {
+    response = await api.post('/usuarios/login', { email: usuario, senha });
+  } catch (error) {
+    if (error.response?.status === 401) throw new Error('Senha incorreta.');
+    if (error.response?.status === 404) throw new Error('Usuário não encontrado.');
+    if (error.response) throw new Error(`Erro ${error.response.status} - Tente novamente mais tarde.`);
     throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão.');
   }
 
-  if (response.status === 401) throw new Error('Senha incorreta.');
-  if (response.status === 404) throw new Error('Usuário não encontrado.');
-  if (!response.ok)            throw new Error(`Erro ${response.status} - Tente novamente mais tarde.`);
-
-  let data;
-  
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error('Resposta inválida do servidor. Tente novamente.');
-  }
-
+  const data = response.data;
   const token = data.token ?? data.accessToken ?? data.access_token;
   if (!token) throw new Error('Erro interno no servidor. Tente novamente mais tarde.');
 
@@ -54,14 +41,7 @@ export async function logout() {
 
 
 export async function getAlunos() {
-  const response = await fetch(`${BASE_URL}/trainer/alunos`, {
-    method:  'GET',
-    headers: await authHeaders(),
-  });
-
-  if (!response.ok) throw new Error(`Erro ao buscar alunos: ${response.status}`);
-
-  const data = await response.json();
+  const { data } = await api.get('/trainer/alunos');
 
   return data.map((a) => {
     const nome   = a.nome ?? a.name ?? "";
@@ -82,9 +62,7 @@ export async function getAlunos() {
     const nivelRaw = (a.nivel ?? a.level ?? "").toString();
     const nivel    = NIVEL_MAP[nivelRaw] ?? null;
 
-    const observacoes = Array.isArray(a.observacoes)
-      ? a.observacoes
-      : [];
+    const observacoes = Array.isArray(a.observacoes) ? a.observacoes : [];
 
     return { id: a.id, nome, initials, nivel, observacoes };
   });
@@ -92,10 +70,8 @@ export async function getAlunos() {
 
 
 export async function gerarPlano(message, students) {
-  const response = await fetch(`${BASE_URL}/trainer/plano`, {
-    method:  'POST',
-    headers: await authHeaders(),
-    body:    JSON.stringify({
+  try {
+    const { data } = await api.post('/trainer/plano', {
       message,
       students: students.map(s => ({
         id:          s.id,
@@ -103,22 +79,18 @@ export async function gerarPlano(message, students) {
         nivel:       s.nivel,
         observacoes: s.observacoes ?? [],
       })),
-    }),
-  });
-
-  if (!response.ok) {
-    if (response.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
-    throw new Error(`Erro: ${response.status}`);
+    });
+    return data;
+  } catch (error) {
+    if (error.response?.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
+    throw new Error(`Erro: ${error.response?.status ?? error.message}`);
   }
-  return response.text();
 }
 
 
 export async function transcreverEGerarPlano(audioBase64, mimeType, students) {
-  const response = await fetch(`${BASE_URL}/trainer/transcrever`, {
-    method:  'POST',
-    headers: await authHeaders(),
-    body:    JSON.stringify({
+  try {
+    const { data } = await api.post('/trainer/transcrever', {
       audioBase64,
       mimeType,
       students: students.map(s => ({
@@ -127,12 +99,10 @@ export async function transcreverEGerarPlano(audioBase64, mimeType, students) {
         nivel:       s.nivel,
         observacoes: s.observacoes ?? [],
       })),
-    }),
-  });
-
-  if (!response.ok) {
-    if (response.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
-    throw new Error(`Erro ao transcrever: ${response.status}`);
+    });
+    return data;
+  } catch (error) {
+    if (error.response?.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
+    throw new Error(`Erro ao transcrever: ${error.response?.status ?? error.message}`);
   }
-  return response.text();
 }

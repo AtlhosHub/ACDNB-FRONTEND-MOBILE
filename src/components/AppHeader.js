@@ -35,47 +35,47 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
             SMASH
           </Text>
 
-          <Text
-            style={{
-              marginLeft: scale(8),
-              fontFamily: 'Poppins_500Medium',
-              fontSize: scale(15),
-              color: '#F3F9F9',
-            }}
-          >
-            |
-          </Text>
+                    <Text
+                        style={{
+                            marginLeft: scale(8),
+                            fontFamily: 'Poppins_500Medium',
+                            fontSize: scale(15),
+                            color: '#F3F9F9',
+                        }}
+                    >
+                        |
+                    </Text>
 
-          <Text
-            style={{
-              marginLeft: scale(8),
-              fontFamily: 'Poppins_500Medium',
-              fontSize: scale(15),
-              color: '#FFFFFF',
-            }}
-          >
-            {subtitulo}
-          </Text>
-        </View>
+                    <Text
+                        style={{
+                            marginLeft: scale(8),
+                            fontFamily: 'Poppins_500Medium',
+                            fontSize: scale(15),
+                            color: '#FFFFFF',
+                        }}
+                    >
+                        {subtitulo}
+                    </Text>
+                </View>
 
-        <View
-          style={{
-            width: scale(34),
-            height: scale(34),
-            borderRadius: scale(17),
-            backgroundColor: '#D9D9D9',
-          }}
-        />
-      </View>
+                <View
+                    style={{
+                        width: scale(34),
+                        height: scale(34),
+                        borderRadius: scale(17),
+                        backgroundColor: '#D9D9D9',
+                    }}
+                />
+            </View>
 
-      <Image
-        source={backgroundImage}
-        style={{
-          width: '100%',
-          height: scale(76),
-          resizeMode: 'cover',
-        }}
-      />
+            <Image
+                source={backgroundImage}
+                style={{
+                    width: '100%',
+                    height: scale(76),
+                    resizeMode: 'cover',
+                }}
+            />
 
       <TouchableOpacity
         onPress={onBackPress}

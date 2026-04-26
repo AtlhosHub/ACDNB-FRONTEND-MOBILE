@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
 import { api } from '../../api';
-import { formatarCPF, formatarData } from '../utils/formatters';
+import { formatarCPF, formatarData } from '../../utils/formatters';
 
 const NIVEIS_HABILIDADE = ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'];
 

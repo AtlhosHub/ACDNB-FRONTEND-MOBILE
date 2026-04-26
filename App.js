@@ -14,11 +14,13 @@ import ListaEsperaScreen from './src/screens/ListaEsperaScreen';
 import MensalidadesScreen from './src/screens/MensalidadesScreen';
 import TrainerAIScreen from './src/screens/TrainerAIScreen';
 import CadastroInteressadoScreen from './src/screens/CadastroInteressadoScreen';
+import DashboardScreen from './src/screens/dashboard/index';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TAB_ICONS = {
+  Dashboard:         'grid-outline',
   Mensalidades:      'cash-outline',
   'Lista de Espera': 'people-outline',
   'Trainer AI':      'sparkles-outline',
@@ -62,6 +64,7 @@ function MainTabs() {
         ),
       })}
     >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Mensalidades" component={MensalidadesScreen} />
       <Tab.Screen name="Lista de Espera" component={ListaEsperaScreen} />
       <Tab.Screen name="Trainer AI" component={TrainerAIScreen} />

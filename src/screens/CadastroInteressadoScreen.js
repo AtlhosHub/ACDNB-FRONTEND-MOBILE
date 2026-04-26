@@ -15,7 +15,7 @@ import AppHeader from '../components/AppHeader';
 import Label from '../components/Label';
 import Button from '../components/Button';
 import { horariosMock } from '../mocks/horariosMock';
-import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../utils/formatters';
+import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../../utils/formatters';
 import { api } from '../../api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 

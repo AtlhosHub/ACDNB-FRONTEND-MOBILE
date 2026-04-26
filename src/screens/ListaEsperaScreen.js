@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  useWindowDimensions,
-  TouchableOpacity,
+    View,
+    Text,
+    ScrollView,
+    Image,
+    useWindowDimensions,
+    TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
@@ -16,9 +16,9 @@ import AppHeader from '../components/AppHeader';
 import { listaMock } from '../mocks/listaMock';
 import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
-import { formatarData, formatarHorario } from '../utils/formatters';
+import { formatarData, formatarHorario } from '../../utils/formatters';
+import { useScale } from '../../utils/scale';
 
-const ENDPOINTLISTAESPERA = 'http/';
 const REGISTROSPORPAGINA = 10;
 
 const normalizarRegistro = (registro, indice) => {
@@ -53,9 +53,7 @@ const normalizarRegistro = (registro, indice) => {
   };
 };
 
-
-
-const listaEsperaScreen = () => {
+const ListaEsperaScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
   const navigation = useNavigation();
@@ -475,5 +473,5 @@ const listaEsperaScreen = () => {
   );
 };
 
-export default listaEsperaScreen;
+export default ListaEsperaScreen;
 
