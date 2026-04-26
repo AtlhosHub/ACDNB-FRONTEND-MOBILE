@@ -40,13 +40,15 @@ const Label = ({
         placeholderTextColor={'rgba(30, 25, 25, 0.45)'}
         autoCapitalize="none"
         style={{
-          height: '100%',
+          flex: 1,
           textAlignVertical: 'center',
           paddingLeft: 12,
           paddingRight: showToggle || showCustomRightIcon ? 42 : 12,
+          paddingVertical: 0,
           fontFamily: 'Poppins_400Regular',
           fontSize: 16,
           color: '#1E1919',
+          includeFontPadding: false,
           ...(inputStyle || {}),
         }}
       />
