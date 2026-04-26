@@ -224,7 +224,7 @@ const listaEsperaScreen = () => {
               alignItems: 'center',
             }}
           >
-            <Button
+            {/* <Button
               title="FILTRO"
               onPress={() => { }}
               width={scale(88)}
@@ -250,7 +250,7 @@ const listaEsperaScreen = () => {
                   color='#286da8'
                 />
               }
-            ></Button>
+            ></Button> */}
             <Button
               title='CADASTRAR'
               onPress={() => { }}

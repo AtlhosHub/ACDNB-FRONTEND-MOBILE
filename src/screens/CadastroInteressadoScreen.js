@@ -38,6 +38,11 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   const [showContatoPicker, setShowContatoPicker] = useState(false);
   const [showNascimentoPicker, setShowNascimentoPicker] = useState(false);
   const [horarios, setHorarios] = useState([]);
+  const [numero, setNumero] = useState('');
+  const [logradouro, setLogradouro] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
 
   const camposObrigatoriosPreenchidos =
     nome.trim() !== '' &&
@@ -47,7 +52,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
     email.trim() !== '' &&
     celular.trim() !== '' &&
     horarioPreferencia !== '';
-    // horarioPreferencia.trim() !== '';
+  // horarioPreferencia.trim() !== '';
 
 
   async function adicionarInteressado(authToken) {
@@ -63,7 +68,17 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         telefone: null,
         dataInclusao: new Date().toISOString().slice(0, 10) + 'T00:00:00',
         usuarioInclusao: 1, // substituir pelo id do usuário logado
-        horarioPrefId: horarioPreferencia
+        horarioPrefId: horarioPreferencia,
+        endereco: {
+          logradouro: logradouro,
+          numLog: numero,
+          bairro: bairro,
+          cidade: cidade,
+          estado: estado,
+          cep: {
+            value: cep
+          }
+        }
       };
 
       const response = await api.post('/lista-espera/adicionar', payload, {
@@ -108,6 +123,31 @@ const CadastroInteressadoScreen = ({ navigation }) => {
 
     inicializarToken();
   }, []);
+
+  async function buscarCep(valorCep) {
+    try {
+      const cepLimpo = valorCep.replace(/\D/g, '');
+
+      if (cepLimpo.length !== 8) return;
+
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        alert('CEP não encontrado', 'Digite um CEP válido.');
+        return;
+      }
+
+      setLogradouro(data.logradouro);
+      setBairro(data.bairro);
+      setCidade(data.localidade);
+      setEstado(data.uf);
+
+    } catch (error) {
+      alert('Erro', 'Não foi possível consultar o CEP.');
+      console.error(error);
+    }
+  }
 
   const FieldLabel = ({ text, required, infoIcon }) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: scale(4) }}>
@@ -249,7 +289,25 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         <FieldLabel text="CEP" required />
         <TextInput
           value={cep}
-          onChangeText={setCep}
+          onChangeText={(text) => {
+            setCep(text);
+            buscarCep(text);
+          }}
+          style={{
+            height: 40,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            marginBottom: scale(14)
+          }}
+        />
+
+
+        <FieldLabel text="Número" required />
+        <TextInput
+          value={numero}
+          onChangeText={setNumero}
           style={{
             height: 40,
             borderWidth: 1,
@@ -396,7 +454,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             marginBottom: scale(14)
           }}
         />
-      
+
         <View style={{ flexDirection: 'row', gap: scale(12) }}>
           <Button
             title="Cancelar"
