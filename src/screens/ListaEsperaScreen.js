@@ -474,4 +474,3 @@ const ListaEsperaScreen = () => {
 };
 
 export default ListaEsperaScreen;
-
