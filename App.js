@@ -5,6 +5,7 @@ import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@exp
 import { Mohave_600SemiBold } from '@expo-google-fonts/mohave';
 import LoginScreen from './src/screens/LoginScreen';
 import ListaEsperaScreen from './src/screens/ListaEsperaScreen'
+import DashboardScreen from './src/screens/dashboard';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -20,7 +21,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <ListaEsperaScreen />
+      <DashboardScreen />
+      {/* <ListaEsperaScreen /> */}
       <StatusBar style="auto" />
     </View>
   );
