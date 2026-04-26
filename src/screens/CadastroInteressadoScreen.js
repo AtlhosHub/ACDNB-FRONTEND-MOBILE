@@ -110,7 +110,6 @@ const CadastroInteressadoScreen = ({ navigation }) => {
 
   useEffect(() => {
     const inicializarToken = async () => {
-      await AsyncStorage.setItem('authToken', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzcwNzE2NTIsImV4cCI6MTc3NzA3ODg1Mn0.nVxZjocKGPhbHGAi3k_4gj7rUUMjnSHE8hrgj12g3xFh1g4ok5ZwfTy4uX1Xg6CbQIJiEitCdwxrhbwFN101lw');
       try {
         let token = await AsyncStorage.getItem('authToken');
         setAuthToken(token);
