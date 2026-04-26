@@ -34,7 +34,7 @@ export default function DashboardScreen() {
     });
 
     const buildKpi = async (graphData) => {
-        if(graphData.length === 0) {
+        if (graphData.length === 0) {
             setKpiList([]);
         }
 
@@ -129,14 +129,16 @@ export default function DashboardScreen() {
                     showsHorizontalScrollIndicator={false}
                     scrollEnabled={true}
                 >
-                    {kpiList.map((kpi, index) => (
-                        <DashboardKpi
-                            key={index}
-                            title={kpi.title}
-                            icon={kpi.icon}
-                            value={kpi.value}
-                        />
-                    ))}
+                    <DashboardKpi
+                        kpiData={kpiList[0]}
+                    />
+                    <DashboardKpi
+                        kpiData={kpiList[1]}
+                    />
+                    <DashboardKpi
+                        kpiData={kpiList[2]}
+                    />
+
                 </ScrollView>
             </View>
 

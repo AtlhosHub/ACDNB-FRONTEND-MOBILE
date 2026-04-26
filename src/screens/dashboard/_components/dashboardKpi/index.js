@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useScale } from '../../../../../utils/scale';
 import SystemIcons from '../../../../components/systemIcons';
 
-export default function DashboardKpi({ title, icon, value }) {
+export default function DashboardKpi({ kpiData }) {
     const scale = useScale();
 
     return (
@@ -14,26 +14,35 @@ export default function DashboardKpi({ title, icon, value }) {
                     paddingHorizontal: scale(10),
                     borderRadius: scale(15),
                     minWidth: scale(180),
+                    minHeight: scale(81),
                 }
                 ]}
         >
-            <Text style={[styles.title, { fontSize: scale(15) }]}>
-                {title}
-            </Text>
-            <View style={{ alignItems: 'center', flexDirection: 'row', gap: scale(4) }}>
-                {icon && (
-                    <SystemIcons
-                        icon={icon}
-                        size={scale(30)}
-                        color='#286DA8'
-                    />
-                )}
-                <Text
-                    style={[styles.value, { fontSize: scale(20), transform: [{ translateY: scale(1) }] }]}
-                >
-                    {value}
-                </Text>
-            </View>
+            {kpiData ? (
+                <View>
+                    <Text style={[styles.title, { fontSize: scale(15) }]}>
+                        {kpiData.title}
+                    </Text>
+                    <View style={{ alignItems: 'center', flexDirection: 'row', gap: scale(4) }}>
+                        {kpiData.icon && (
+                            <SystemIcons
+                                icon={kpiData.icon}
+                                size={scale(30)}
+                                color='#286DA8'
+                            />
+                        )}
+                        <Text
+                            style={[styles.value, { fontSize: scale(20), transform: [{ translateY: scale(1) }] }]}
+                        >
+                            {kpiData.value}
+                        </Text>
+                    </View>
+                </View>
+            ) : (
+                <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                    <ActivityIndicator size='small' color='#286da8' />
+                </View>
+            )}
         </View>
     )
 }

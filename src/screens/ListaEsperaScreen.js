@@ -17,8 +17,8 @@ import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatarData, formatarHorario } from '../utils/formatters';
+import { useScale } from '../../utils/scale';
 
-const ENDPOINTLISTAESPERA = 'http/';
 const REGISTROSPORPAGINA = 10;
 
 const normalizarRegistro = (registro, indice) => {
@@ -52,8 +52,6 @@ const normalizarRegistro = (registro, indice) => {
     ),
   };
 };
-
-
 
 const listaEsperaScreen = () => {
     const { height: screenHeight } = useWindowDimensions();

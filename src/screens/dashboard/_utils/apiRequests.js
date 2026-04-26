@@ -1,6 +1,6 @@
 import { api } from "../../../../api";
 
-const authToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzcxNjMzMDgsImV4cCI6MTc3NzE3MDUwOH0.RBaz7QMaO1Zfa9m7D_uZn1YiIwAi-KHqK2xs1G9feBJ2pACGgUNTQdhnHl61oIVfzuWvQRJX-FwrSHFutxy3jQ"
+const authToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGFkbS5jb20iLCJpYXQiOjE3NzcxNjQzMzIsImV4cCI6MTc3NzE3MTUzMn0.S0ciRJL-iv2dzLGI-UhZlaZASdBGpdZq8IbmTeX0--pJgVy0SeSodU7Ej90EVrW9FB3Lpu3WPDiYQfgSdWJVpw"
 
 export const getAniversariantes = async () => {
     try {
