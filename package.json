@@ -11,17 +11,26 @@
   "dependencies": {
     "@expo-google-fonts/mohave": "^0.4.1",
     "@expo-google-fonts/poppins": "^0.4.1",
+    "@lineiconshq/free-icons": "^1.0.4",
+    "@lineiconshq/react-lineicons": "^1.0.5",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-picker/picker": "2.11.1",
-    "axios": "^1.15.0",
+    "dayjs": "^1.11.20",
     "expo": "~54.0.33",
     "expo-font": "^55.0.4",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
+    "axios": "^1.15.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-web": "^0.21.0"
+    "react-native-gifted-charts": "^1.4.76",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-maps": "1.20.1",
+    "react-native-reanimated": "^4.3.0",
+    "react-native-svg": "^15.15.3",
+    "react-native-web": "^0.21.0",
+    "victory-native": "^41.20.2"
   },
   "private": true
 }

@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  useWindowDimensions,
-  TouchableOpacity,
+    View,
+    Text,
+    ScrollView,
+    Image,
+    useWindowDimensions,
+    TouchableOpacity,
 } from 'react-native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,8 +17,8 @@ import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatarData, formatarHorario } from '../utils/formatters';
+import { useScale } from '../../utils/scale';
 
-const ENDPOINTLISTAESPERA = 'http/';
 const REGISTROSPORPAGINA = 10;
 
 const normalizarRegistro = (registro, indice) => {
@@ -53,11 +53,9 @@ const normalizarRegistro = (registro, indice) => {
   };
 };
 
-
-
 const listaEsperaScreen = () => {
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const scale = (size) => (screenWidth / 375) * size;
+    const { height: screenHeight } = useWindowDimensions();
+    const scale = useScale();
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
