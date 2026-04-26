@@ -1,35 +1,39 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { useScale } from '../../utils/scale';
+import React from 'react';
+import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const backgroundImage = require('../assets/images/background.png');
 
 const AppHeader = ({ subtitulo, onBackPress }) => {
-    const scale = useScale();
+  const { width: screenWidth } = useWindowDimensions();
+  const scale = (size) => (screenWidth / 375) * size;
+  const insets = useSafeAreaInsets();
 
-    return (
-        <View style={{ width: '100%' }}>
-            <View
-                style={{
-                    width: '100%',
-                    backgroundColor: '#286DA8',
-                    paddingTop: scale(36),
-                    paddingBottom: scale(14),
-                    paddingHorizontal: scale(18),
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}
-            >
-                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                    <Text
-                        style={{
-                            fontFamily: 'Mohave_600SemiBold',
-                            fontSize: scale(32),
-                            color: '#F3F9F9',
-                        }}
-                    >
-                        SMASH
-                    </Text>
+  return (
+    <View style={{ width: '100%' }}>
+      <View
+        style={{
+          width: '100%',
+          backgroundColor: '#286DA8',
+          paddingTop: insets.top + scale(16),
+          paddingBottom: scale(14),
+          paddingHorizontal: scale(18),
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+          <Text
+            style={{
+              fontFamily: 'Mohave_600SemiBold',
+              fontSize: scale(32),
+              lineHeight: scale(30),
+              color: '#F3F9F9',
+            }}
+          >
+            SMASH
+          </Text>
 
                     <Text
                         style={{
@@ -73,30 +77,30 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
                 }}
             />
 
-            <TouchableOpacity
-                onPress={onBackPress}
-                activeOpacity={0.7}
-                style={{
-                    position: 'absolute',
-                    left: scale(10),
-                    top: scale(86),
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingVertical: scale(4),
-                }}
-            >
-                <Text
-                    style={{
-                        fontFamily: 'Poppins_500Medium',
-                        fontSize: scale(14),
-                        color: '#0D3C53',
-                    }}
-                >
-                    ← Voltar
-                </Text>
-            </TouchableOpacity>
-        </View>
-    );
+      <TouchableOpacity
+        onPress={onBackPress}
+        activeOpacity={0.7}
+        style={{
+          position: 'absolute',
+          left: scale(10),
+          top: insets.top + scale(86),
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: scale(4),
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: 'Poppins_500Medium',
+            fontSize: scale(14),
+            color: '#1e4e66',
+          }}
+        >
+          ← Voltar
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 export default AppHeader;

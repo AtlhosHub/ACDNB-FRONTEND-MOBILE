@@ -15,9 +15,8 @@ import AppHeader from '../components/AppHeader';
 import Label from '../components/Label';
 import Button from '../components/Button';
 import { horariosMock } from '../mocks/horariosMock';
-import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../utils/formatters';
+import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../../utils/formatters';
 import { api } from '../../api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CadastroInteressadoScreen = ({ navigation }) => {
@@ -34,7 +33,6 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   const [nomeSocial, setNomeSocial] = useState('');
   const [tooltipVisible, setTooltipVisible] = useState(false);
   // const [horarios] = useState(horariosMock);
-  const [authToken, setAuthToken] = useState(null);
   const [showContatoPicker, setShowContatoPicker] = useState(false);
   const [showNascimentoPicker, setShowNascimentoPicker] = useState(false);
   const [horarios, setHorarios] = useState([]);
@@ -55,7 +53,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   // horarioPreferencia.trim() !== '';
 
 
-  async function adicionarInteressado(authToken) {
+  async function adicionarInteressado() {
     try {
       const payload = {
         nome: nome,
@@ -81,12 +79,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         }
       };
 
-      const response = await api.post('/lista-espera/adicionar', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        }
-      });
+      const response = await api.post('/lista-espera/adicionar', payload);
       alert("Interessado cadastrado com sucesso!");
       console.log('Sucesso:', response.data);
     } catch (error) {
@@ -94,34 +87,17 @@ const CadastroInteressadoScreen = ({ navigation }) => {
     }
   }
 
-  async function getHorarioPreferencia(token) {
+  async function getHorarioPreferencia() {
     try {
-      const response = await api.get('/horario-preferencia', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      });
+      const response = await api.get('/horario-preferencia');
       setHorarios(response.data);
-
     } catch (error) {
       console.error("Erro ao buscar horários:", error);
     }
   }
 
   useEffect(() => {
-    const inicializarToken = async () => {
-      try {
-        let token = await AsyncStorage.getItem('authToken');
-        setAuthToken(token);
-        if (token) {
-          getHorarioPreferencia(token);
-        }
-      } catch (erro) {
-        console.error('Erro ao obter token:', erro);
-      }
-    };
-
-    inicializarToken();
+    getHorarioPreferencia();
   }, []);
 
   async function buscarCep(valorCep) {
@@ -471,7 +447,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             backgroundColor={camposObrigatoriosPreenchidos ? '#286DA8' : '#D9D9D9'}
             textColor="#FFFFFF"
             disabled={!camposObrigatoriosPreenchidos}
-            onPress={() => { adicionarInteressado(authToken) }}
+            onPress={() => { adicionarInteressado() }}
           />
         </View>
       </ScrollView>

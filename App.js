@@ -1,91 +1,117 @@
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
+import { useRef, useEffect } from 'react';
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
 import { Mohave_600SemiBold } from '@expo-google-fonts/mohave';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import LoginScreen from './src/screens/LoginScreen';
 import ListaEsperaScreen from './src/screens/ListaEsperaScreen';
 import MensalidadesScreen from './src/screens/MensalidadesScreen';
+import TrainerAIScreen from './src/screens/TrainerAIScreen';
 import CadastroInteressadoScreen from './src/screens/CadastroInteressadoScreen';
 import DashboardScreen from './src/screens/dashboard/index';
 
-const TELAS = [
-    { key: 'login', label: 'Login', component: CadastroInteressadoScreen },
-    { key: 'dashboard', label: 'Dashboard', component: DashboardScreen },
-    { key: 'listaEspera', label: 'Lista Espera', component: ListaEsperaScreen },
-    { key: 'mensalidades', label: 'Mensalidades', component: MensalidadesScreen },
-];
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+const TAB_ICONS = {
+  Dashboard:         'grid-outline',
+  Mensalidades:      'cash-outline',
+  'Lista de Espera': 'people-outline',
+  'Trainer AI':      'sparkles-outline',
+};
+
+function TabIcon({ routeName, focused, color }) {
+  const anim = useRef(new Animated.Value(focused ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(anim, {
+      toValue: focused ? 1 : 0,
+      useNativeDriver: false,
+      tension: 120,
+      friction: 8,
+    }).start();
+  }, [focused]);
+
+  const bgColor = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.30)'],
+  });
+
+  return (
+    <Animated.View style={[styles.iconWrapper, { backgroundColor: bgColor }]}>
+      <Ionicons name={TAB_ICONS[routeName]} size={22} color={color} />
+    </Animated.View>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: '#ffffff',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.5)',
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabLabel,
+        tabBarIcon: ({ focused, color }) => (
+          <TabIcon routeName={route.name} focused={focused} color={color} />
+        ),
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Mensalidades" component={MensalidadesScreen} />
+      <Tab.Screen name="Lista de Espera" component={ListaEsperaScreen} />
+      <Tab.Screen name="Trainer AI" component={TrainerAIScreen} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
-    const [fontsLoaded] = useFonts({
-        Poppins_400Regular,
-        Poppins_500Medium,
-        Poppins_600SemiBold,
-        Mohave_600SemiBold,
-    });
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Mohave_600SemiBold,
+  });
 
-    const [telaAtual, setTelaAtual] = useState('login');
+  if (!fontsLoaded) return null;
 
-    if (!fontsLoaded) return null;
-
-    const Tela = TELAS.find((t) => t.key === telaAtual).component;
-
-    return (
-        <View style={styles.container}>
-            <Tela />
-
-            {/* ── Barra de navegação temporária para apresentação ── */}
-            <View style={styles.navBar}>
-                {TELAS.map((t) => {
-                    const ativa = t.key === telaAtual;
-                    return (
-                        <TouchableOpacity
-                            key={t.key}
-                            onPress={() => setTelaAtual(t.key)}
-                            style={[styles.navBtn, ativa && styles.navBtnAtivo]}
-                        >
-                            <Text style={[styles.navLabel, ativa && styles.navLabelAtivo]}>
-                                {t.label}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-
-            <StatusBar style="auto" />
-        </View>
-    );
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="CadastroInteressado" component={CadastroInteressadoScreen} />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    navBar: {
-        flexDirection: 'row',
-        backgroundColor: '#0d3c53',
-        paddingVertical: 8,
-        paddingHorizontal: 6,
-        gap: 6,
-    },
-    navBtn: {
-        flex: 1,
-        paddingVertical: 7,
-        borderRadius: 6,
-        alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.08)',
-    },
-    navBtnAtivo: {
-        backgroundColor: '#286da8',
-    },
-    navLabel: {
-        fontFamily: 'Poppins_500Medium',
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.55)',
-    },
-    navLabelAtivo: {
-        color: '#ffffff',
-    },
+  tabBar: {
+    backgroundColor: '#0d3c53',
+    borderTopWidth: 0,
+    paddingTop: 6,
+    paddingHorizontal: 8,
+  },
+  tabLabel: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11,
+  },
+  iconWrapper: {
+    width: 52,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

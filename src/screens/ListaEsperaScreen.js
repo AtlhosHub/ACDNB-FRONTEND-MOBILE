@@ -7,6 +7,7 @@ import {
     useWindowDimensions,
     TouchableOpacity,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
 import Label from '../components/Label';
@@ -15,8 +16,7 @@ import AppHeader from '../components/AppHeader';
 import { listaMock } from '../mocks/listaMock';
 import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatarData, formatarHorario } from '../utils/formatters';
+import { formatarData, formatarHorario } from '../../utils/formatters';
 import { useScale } from '../../utils/scale';
 
 const REGISTROSPORPAGINA = 10;
@@ -53,9 +53,10 @@ const normalizarRegistro = (registro, indice) => {
   };
 };
 
-const listaEsperaScreen = () => {
-    const { height: screenHeight } = useWindowDimensions();
-    const scale = useScale();
+const ListaEsperaScreen = () => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const scale = (size) => (screenWidth / 375) * size;
+  const navigation = useNavigation();
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -63,23 +64,15 @@ const listaEsperaScreen = () => {
   const [textoBusca, setTextoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
-  const [authToken, setAuthToken] = useState(null);
 
-  async function getListaEspera(filtro, authToken) {
+  async function getListaEspera(filtro) {
     try {
-      const response = await api.post('/lista-espera', filtro, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-      });
+      const response = await api.post('/lista-espera', filtro);
 
-      // Extrai o array 'content' da resposta
       const dadosAPI = response.data?.content || [];
       const total = response.data?.total || 0;
 
       if (Array.isArray(dadosAPI) && dadosAPI.length > 0) {
-        // Mapeia os dados reais para o formato esperado
         const registrosFormatados = dadosAPI.map(normalizarRegistro);
         setRegistros(registrosFormatados);
         setTotalRegistros(total);
@@ -94,22 +87,6 @@ const listaEsperaScreen = () => {
 
 
   useEffect(() => {
-    const inicializarToken = async () => {
-      try {
-        let token = await AsyncStorage.getItem('authToken');
-        setAuthToken(token);
-      } catch (erro) {
-        console.error('Erro ao obter token:', erro);
-      }
-    };
-
-    inicializarToken();
-  }, []);
-
-  // Chamada a API quando mudar página, busca ou token
-  useEffect(() => {
-    if (!authToken) return;
-
     const carregarListaEspera = async () => {
       try {
         setCarregando(true);
@@ -119,10 +96,9 @@ const listaEsperaScreen = () => {
           nome: textoBusca.trim() || null,
           offset: offset,
           limit: REGISTROSPORPAGINA
-        }, authToken);
+        });
       } catch (erro) {
         console.error('Erro ao carregar lista de espera:', erro);
-        // Fallback para mock em caso de erro
         setRegistros(listaMock);
         setUsandoMock(true);
       } finally {
@@ -131,7 +107,7 @@ const listaEsperaScreen = () => {
     };
 
     carregarListaEspera();
-  }, [authToken, paginaAtual, textoBusca]);
+  }, [paginaAtual, textoBusca]);
 
   const colunas = useMemo(
     () => [
@@ -224,36 +200,9 @@ const listaEsperaScreen = () => {
               alignItems: 'center',
             }}
           >
-            {/* <Button
-              title="FILTRO"
-              onPress={() => { }}
-              width={scale(88)}
-              height={scale(30)}
-              borderRadius={scale(4)}
-              backgroundColor="#ffffff"
-              textColor="#286da8"
-              borderWidth={1}
-              borderColor="#286da8"
-              fontSize={scale(10)}
-              style={{
-                flexDirection: 'row',
-                paddingHorizontal: scale(8),
-                marginRight: scale(8)
-              }}
-              textStyle={{
-                marginRight: 0,
-              }}
-              rightIcon={
-                <Ionicons
-                  name='options-outline'
-                  size={scale(12)}
-                  color='#286da8'
-                />
-              }
-            ></Button> */}
             <Button
               title='CADASTRAR'
-              onPress={() => { }}
+              onPress={() => navigation.navigate('CadastroInteressado')}
               width={scale(88)}
               height={scale(30)}
               borderRadius={scale(4)}
@@ -524,5 +473,4 @@ const listaEsperaScreen = () => {
   );
 };
 
-export default listaEsperaScreen;
-
+export default ListaEsperaScreen;
