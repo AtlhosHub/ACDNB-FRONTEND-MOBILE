@@ -34,7 +34,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   const nivelHabilidade = alunoDetalhes?.nivel?.descricao ?? null;
   const observacoes = alunoObservacoes?.[0]?.descricao ?? null;
 
-  const statusConf = STATUS_CONFIG[aluno?.status] ?? STATUS_CONFIG.pendente;
+  // statusConf removido — o histórico usa o status de cada pagamento individualmente
 
   async function getAlunoDetalhes(alunoId) {
     try {
@@ -316,7 +316,17 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
 
 const renderHistoricoPagamento = () => (
   <View style={{ paddingTop: scale(8) }}>
-    {historicoPagamento?.map((pagamento) => (
+    {historicoPagamento?.map((pagamento) => {
+      let statusPagamento;
+      if (pagamento.dataPagamento) {
+        statusPagamento = 'pago';
+      } else if (pagamento.dataVencimento && new Date(pagamento.dataVencimento) < new Date()) {
+        statusPagamento = 'atrasado';
+      } else {
+        statusPagamento = String(pagamento.status ?? 'pendente').toLowerCase();
+      }
+      const statusConf = STATUS_CONFIG[statusPagamento] ?? STATUS_CONFIG.pendente;
+      return (
       <View
         key={pagamento.id}
         style={{
@@ -353,7 +363,7 @@ const renderHistoricoPagamento = () => (
 
         {pagamento?.dataPagamento ? (
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(12), color: '#777777' }}>
-            {pagamento.dataPagamento}{pagamento.formaPagamento ? `  •  ${pagamento.formaPagamento}` : ''}
+            {formatarData(pagamento.dataPagamento)}{pagamento.formaPagamento ? `  •  ${pagamento.formaPagamento}` : ''}
           </Text>
         ) : (
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(12), color: '#777777' }}>
@@ -361,18 +371,8 @@ const renderHistoricoPagamento = () => (
           </Text>
         )}
       </View>
-    ))}
-    <Text
-      style={{
-        fontFamily: 'Poppins_400Regular',
-        fontSize: scale(12),
-        color: 'rgba(0,0,0,0.4)',
-        textAlign: 'center',
-        marginTop: scale(16),
-      }}
-    >
-    </Text>
-
+      );
+    })}
   </View>
 );
 

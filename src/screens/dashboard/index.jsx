@@ -8,7 +8,8 @@ import DashboardKpi from './_components/dashboardKpi';
 import { View, ScrollView, Text } from 'react-native'
 import GraphLabel from './_components/graphLabel';
 import HeatMap from './_components/heatMap';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { HeatMapTable } from './_components/heatMapTable';
 import { ListaAniversariante } from './_components/listaAniversariante';
 import { getAniversariantes, getGraphData, getTotalAtivo } from './_utils/apiRequests';
@@ -20,6 +21,17 @@ export default function DashboardScreen() {
     const [alunos, setAlunos] = useState([]);
     const [kpiList, setKpiList] = useState([]);
     const [dashboardData, setDashboardData] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const didMountRef = useRef(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (didMountRef.current) {
+                setRefreshKey((k) => k + 1);
+            }
+            didMountRef.current = true;
+        }, []),
+    );
 
     const [mapData, setMapData] = useState([
         { latitude: -23.5558, longitude: -46.6358, area: 125, nome: 'Liberdade - SP', rank: 1, points: 200 },
@@ -103,7 +115,7 @@ export default function DashboardScreen() {
 
     useEffect(() => {
         initliaze();
-    }, [])
+    }, [refreshKey])
 
     return (
         <ScrollView

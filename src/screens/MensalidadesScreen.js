@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
 import Label from '../components/Label';
 import AppHeader from '../components/AppHeader';
+import { useFocusEffect } from '@react-navigation/native';
 import FiltroMensalidadesModal from '../components/FiltroMensalidadesModal';
 import { mensalidadesMock } from '../mocks/listaMock';
 import DetalhesAlunoScreen from './DetalhesAlunoScreen';
@@ -128,6 +129,17 @@ const MensalidadesScreen = () => {
   const [filtrosAtivos, setFiltrosAtivos] = useState({ status: [], meses: [], ano: new Date().getFullYear(), tiposPagamento: [] });
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const didMountRef = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (didMountRef.current) {
+        setRefreshKey((k) => k + 1);
+      }
+      didMountRef.current = true;
+    }, []),
+  );
   const [textoBuscaDebounce, setTextoBuscaDebounce] = useState('');
 
   async function getMensalidades(filtro) {
@@ -207,7 +219,7 @@ const MensalidadesScreen = () => {
     };
 
     carregarMensalidades();
-  }, [paginaAtual, textoBuscaDebounce, filtrosAtivos]);
+  }, [paginaAtual, textoBuscaDebounce, filtrosAtivos, refreshKey]);
 
   const totalPaginas = Math.max(
     1,

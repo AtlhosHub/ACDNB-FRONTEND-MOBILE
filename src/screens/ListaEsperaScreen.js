@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -7,7 +7,7 @@ import {
     useWindowDimensions,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import { Ionicons } from '@expo/vector-icons';
 import Label from '../components/Label';
@@ -64,6 +64,17 @@ const ListaEsperaScreen = () => {
   const [textoBusca, setTextoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const didMountRef = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (didMountRef.current) {
+        setRefreshKey((k) => k + 1);
+      }
+      didMountRef.current = true;
+    }, []),
+  );
 
   async function getListaEspera(filtro) {
     try {
@@ -107,7 +118,7 @@ const ListaEsperaScreen = () => {
     };
 
     carregarListaEspera();
-  }, [paginaAtual, textoBusca]);
+  }, [paginaAtual, textoBusca, refreshKey]);
 
   const colunas = useMemo(
     () => [

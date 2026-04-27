@@ -80,8 +80,9 @@ const CadastroInteressadoScreen = ({ navigation }) => {
       };
 
       const response = await api.post('/lista-espera/adicionar', payload);
-      alert("Interessado cadastrado com sucesso!");
       console.log('Sucesso:', response.data);
+      alert("Interessado cadastrado com sucesso!");
+      navigation.goBack();
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
     }

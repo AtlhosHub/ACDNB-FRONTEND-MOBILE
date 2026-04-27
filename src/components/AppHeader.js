@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ProfileButton from './ProfileButton';
 
 const backgroundImage = require('../assets/images/background.png');
 
@@ -58,14 +59,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
                     </Text>
                 </View>
 
-                <View
-                    style={{
-                        width: scale(34),
-                        height: scale(34),
-                        borderRadius: scale(17),
-                        backgroundColor: '#D9D9D9',
-                    }}
-                />
+                <ProfileButton size={scale(34)} />
             </View>
 
             <Image

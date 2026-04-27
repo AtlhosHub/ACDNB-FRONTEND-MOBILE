@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import "dayjs/locale/pt-br";
 import { View, Text } from 'react-native'
 import { useScale } from '../../../../../utils/scale';
+import ProfileButton from '../../../../components/ProfileButton';
 
 dayjs.locale("pt-br");
 
@@ -47,14 +48,7 @@ export default function DashboardHeader() {
                     </Text>
                 </View>
 
-                <View
-                    style={{
-                        width: scale(34),
-                        height: scale(34),
-                        borderRadius: scale(17),
-                        backgroundColor: '#D9D9D9',
-                    }}
-                />
+                <ProfileButton size={scale(34)} />
             </View>
             <View
                 style={{

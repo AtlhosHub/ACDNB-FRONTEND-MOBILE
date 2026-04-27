@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BRAND_BLUE }       from "../mocks/constants";
 import { getAlunos }        from "../services/api";
+import { useFocusEffect }   from "@react-navigation/native";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { useTrainingPlan }  from "../hooks/useTrainingPlan";
 import { StudentModal }     from "../components/StudentModal";
@@ -38,11 +39,23 @@ export default function TrainerAIScreen() {
   const [alunos,        setAlunos]        = useState([]);
   const [loadingAlunos, setLoadingAlunos] = useState(true);
   const [errorAlunos,   setErrorAlunos]   = useState(null);
+  const [refreshKey,    setRefreshKey]    = useState(0);
+  const didMountRef = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (didMountRef.current) {
+        setRefreshKey((k) => k + 1);
+      }
+      didMountRef.current = true;
+    }, []),
+  );
 
   const audio = useAudioRecorder();
   const plan  = useTrainingPlan();
 
   useEffect(() => {
+    setLoadingAlunos(true);
     getAlunos()
       .then(setAlunos)
       .catch((err) => {
@@ -50,7 +63,7 @@ export default function TrainerAIScreen() {
         setErrorAlunos("Não foi possível carregar os alunos.");
       })
       .finally(() => setLoadingAlunos(false));
-  }, []);
+  }, [refreshKey]);
 
   const toggleStudent = (id) => {
     setSelectedIds((prev) => {
