@@ -17,6 +17,7 @@ import FiltroMensalidadesModal from '../components/FiltroMensalidadesModal';
 import { mensalidadesMock } from '../mocks/listaMock';
 import DetalhesAlunoScreen from './DetalhesAlunoScreen';
 import { api } from '../../api';
+import { formatarData } from '../../utils/formatters';
 
 const ENDPOINT_MENSALIDADES = '/alunos/comprovantes';
 const REGISTROS_POR_PAGINA = 5;
@@ -455,7 +456,7 @@ const MensalidadesScreen = () => {
                               color: '#777777',
                             }}
                           >
-                            {item.dataPagamento}
+                            {formatarData(item.dataPagamento)}
                           </Text>
                           {item.metodoPagamento && (
                             <View
