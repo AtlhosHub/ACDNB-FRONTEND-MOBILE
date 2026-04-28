@@ -65,6 +65,8 @@ const ListaEsperaScreen = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [buscarKey, setBuscarKey] = useState(0);
+  const timeoutRef = useRef(null);
   const didMountRef = useRef(false);
 
   useFocusEffect(
@@ -97,6 +99,25 @@ const ListaEsperaScreen = () => {
   }
 
 
+  // Debounce para textoBusca
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setPaginaAtual(1);
+      setBuscarKey(k => k + 1);
+    }, 1000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [textoBusca]);
+
+  // Busca quando paginaAtual ou buscarKey mudam
   useEffect(() => {
     const carregarListaEspera = async () => {
       try {
@@ -118,7 +139,7 @@ const ListaEsperaScreen = () => {
     };
 
     carregarListaEspera();
-  }, [paginaAtual, textoBusca, refreshKey]);
+  }, [paginaAtual, buscarKey, refreshKey]);
 
   const colunas = useMemo(
     () => [
