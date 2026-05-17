@@ -18,6 +18,7 @@ import { mensalidadesMock } from '../mocks/listaMock';
 import DetalhesAlunoScreen from './DetalhesAlunoScreen';
 import { api } from '../../api';
 import { formatarData } from '../../utils/formatters';
+import { useTranslation } from 'react-i18next';
 
 const ENDPOINT_MENSALIDADES = '/alunos/comprovantes';
 const REGISTROS_POR_PAGINA = 5;
@@ -37,9 +38,9 @@ const PALETA_INICIAIS = [
 ];
 
 const STATUS_CONFIG = {
-  pago: { label: 'Pago', bg: '#EAF3DE', cor: '#27500A' },
-  pendente: { label: 'Pendente', bg: '#FAEEDA', cor: '#633806' },
-  atrasado: { label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F' },
+  pago: { key: 'pago', bg: '#EAF3DE', cor: '#27500A' },
+  pendente: { key: 'pendente', bg: '#FAEEDA', cor: '#633806' },
+  atrasado: { key: 'atrasado', bg: '#FCEBEB', cor: '#791F1F' },
 };
 
 const BORDA_STATUS = {
@@ -120,6 +121,7 @@ const normalizarMensalidade = (item, i) => {
 const MensalidadesScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const { t } = useTranslation();
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -257,7 +259,7 @@ const MensalidadesScreen = () => {
         onAplicar={(f) => setFiltrosAtivos(f)}
       />
       <AppHeader
-        subtitulo="Mensalidades"
+        subtitulo={t('mensalidades.headerSubtitle')}
         onBackPress={() => console.log('voltar pressionado')}
       />
       <ScrollView
@@ -287,7 +289,7 @@ const MensalidadesScreen = () => {
             <TextInput
               value={textoBusca}
               onChangeText={setTextoBusca}
-              placeholder="Nome do Aluno"
+              placeholder={t('mensalidades.searchPlaceholder')}
               style={{
                 flex: 1,
                 fontSize: scale(12),
@@ -309,7 +311,7 @@ const MensalidadesScreen = () => {
             }}
           >
             <Button
-              title="FILTRO"
+              title={t('mensalidades.filtro')}
               onPress={() => setFiltroVisivel(true)}
               width={scale(88)}
               height={scale(30)}
@@ -360,17 +362,15 @@ const MensalidadesScreen = () => {
                 color: '#0d3c53',
               }}
             >
-              Carregando mensalidades...
+              {t('mensalidades.carregando')}
             </Text>
           </View>
         ) : (
           <View style={{ gap: scale(10) }}>
             {registros.map((item) => {
               const iniciais = obterIniciais(item.nomeAluno);
-              // ✅ CORRIGIDO: desestrutura { bg, text } da paleta
               const { bg: bgCirculo, text: textCirculo } = obterCorIniciais(item.nomeAluno);
               const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pendente;
-              // ✅ CORRIGIDO: borda lateral colorida por status
               const bordaStatus = BORDA_STATUS[item.status] ?? BORDA_STATUS.pendente;
 
               return (
@@ -380,18 +380,14 @@ const MensalidadesScreen = () => {
                   onPress={() => setAlunoSelecionado(item.id)}
                   style={{
                     backgroundColor: '#ffffff',
-                    // ✅ CORRIGIDO: border-radius 14px igual ao Figma
                     borderRadius: 14,
-                    // ✅ CORRIGIDO: borda lateral esquerda colorida por status (5px)
                     borderLeftWidth: 5,
                     borderLeftColor: bordaStatus,
                     paddingVertical: scale(12),
-                    // ✅ CORRIGIDO: padding esquerdo compensa a borda lateral
                     paddingLeft: scale(12),
                     paddingRight: scale(12),
                     flexDirection: 'row',
                     alignItems: 'center',
-                    // ✅ CORRIGIDO: sombra igual ao Figma (0px 4px 5px rgba(0,0,0,0.2))
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.2,
@@ -402,11 +398,9 @@ const MensalidadesScreen = () => {
                   {/* Círculo com iniciais */}
                   <View
                     style={{
-                      // ✅ CORRIGIDO: tamanho 34px igual ao Figma
                       width: 34,
                       height: 34,
                       borderRadius: 17,
-                      // ✅ CORRIGIDO: fundo claro da paleta
                       backgroundColor: bgCirculo,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -418,7 +412,6 @@ const MensalidadesScreen = () => {
                       style={{
                         fontFamily: 'Poppins_500Medium',
                         fontSize: scale(12),
-                        // ✅ CORRIGIDO: texto escuro da mesma família de cor
                         color: textCirculo,
                       }}
                     >
@@ -431,7 +424,6 @@ const MensalidadesScreen = () => {
                     <Text
                       style={{
                         fontFamily: 'Poppins_500Medium',
-                        // ✅ CORRIGIDO: 13.5px igual ao Figma
                         fontSize: scale(13.5),
                         color: '#1a1a1a',
                       }}
@@ -451,7 +443,6 @@ const MensalidadesScreen = () => {
                           <Text
                             style={{
                               fontFamily: 'Poppins_400Regular',
-                              // ✅ CORRIGIDO: 12px igual ao Figma
                               fontSize: scale(12),
                               color: '#777777',
                             }}
@@ -466,7 +457,6 @@ const MensalidadesScreen = () => {
                                 marginLeft: scale(8),
                               }}
                             >
-                              {/* ✅ CORRIGIDO: divisor vertical 1px × 12px cor #E0E0E0 */}
                               <View
                                 style={{
                                   width: 1,
@@ -507,7 +497,6 @@ const MensalidadesScreen = () => {
                       backgroundColor: statusConf.bg,
                       paddingHorizontal: scale(10),
                       paddingVertical: scale(4),
-                      // ✅ CORRIGIDO: border-radius 20px (pílula) igual ao Figma
                       borderRadius: 20,
                       marginLeft: scale(8),
                     }}
@@ -515,12 +504,11 @@ const MensalidadesScreen = () => {
                     <Text
                       style={{
                         fontFamily: 'Poppins_500Medium',
-                        // ✅ CORRIGIDO: 11px igual ao Figma
                         fontSize: scale(11),
                         color: statusConf.cor,
                       }}
                     >
-                      {statusConf.label}
+                      {t(`mensalidades.status.${statusConf.key}`)}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -538,7 +526,7 @@ const MensalidadesScreen = () => {
               color: '#286da8',
             }}
           >
-            Exibindo dados de demonstração enquanto o backend não está disponível
+            {t('mensalidades.mockNotice')}
           </Text>
         )}
 
@@ -581,7 +569,7 @@ const MensalidadesScreen = () => {
                 color: '#0d3c53',
               }}
             >
-              Página {paginaAtual} de {totalPaginas}
+              {t('mensalidades.paginacao', { pagina: paginaAtual, total: totalPaginas })}
             </Text>
 
             <TouchableOpacity

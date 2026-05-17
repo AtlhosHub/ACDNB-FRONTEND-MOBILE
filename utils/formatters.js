@@ -19,7 +19,6 @@ export const formatarData = (dataISO) => {
   }
 };
 
-// Formato de horário HH:mm:ss para HH-HH
 export const formatarHorario = (horarioInicio, horarioFim) => {
   if (!horarioInicio || !horarioFim) return '-';
   try {

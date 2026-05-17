@@ -11,6 +11,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 const MESES_ABREV = [
   'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
@@ -20,9 +21,9 @@ const MESES_ABREV = [
 const TIPOS_PAGAMENTO = ['Pix', 'Dinheiro'];
 
 const STATUS_OPCOES = [
-  { key: 'pago', label: 'Pago', bg: '#EAF3DE', cor: '#27500A', borda: '#639922' },
-  { key: 'pendente', label: 'Pendente', bg: '#FAEEDA', cor: '#633806', borda: '#BA7517' },
-  { key: 'atrasado', label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F', borda: '#E24B4A' },
+  { key: 'pago', bg: '#EAF3DE', cor: '#27500A', borda: '#639922' },
+  { key: 'pendente', bg: '#FAEEDA', cor: '#633806', borda: '#BA7517' },
+  { key: 'atrasado', bg: '#FCEBEB', cor: '#791F1F', borda: '#E24B4A' },
 ];
 
 const estadoInicial = () => ({
@@ -38,6 +39,7 @@ const alternarItem = (lista, item) =>
 const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const { t } = useTranslation();
 
   const ALTURA_SHEET = screenHeight * 0.82;
   const LIMIAR_FECHAR = 120;
@@ -45,7 +47,6 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
   const translateY = useRef(new Animated.Value(ALTURA_SHEET)).current;
   const [filtros, setFiltros] = useState(estadoInicial());
 
-  // Abre o sheet com animação quando visivel muda
   useEffect(() => {
     if (visivel) {
       translateY.setValue(ALTURA_SHEET);
@@ -161,12 +162,12 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
 
         {/* Cabeçalho */}
         <View style={styles.header}>
-          <Text style={[styles.titulo, { fontSize: scale(16) }]}>Filtros</Text>
+          <Text style={[styles.titulo, { fontSize: scale(16) }]}>{t('filtroMensalidades.titulo')}</Text>
           <TouchableOpacity
             onPress={limparTudo}
             style={[styles.btnLimpar, { borderRadius: scale(6), paddingHorizontal: scale(12), paddingVertical: scale(5) }]}
           >
-            <Text style={[styles.txtLimpar, { fontSize: scale(12) }]}>Limpar tudo</Text>
+            <Text style={[styles.txtLimpar, { fontSize: scale(12) }]}>{t('filtroMensalidades.limparTudo')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -180,7 +181,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
           bounces={false}
         >
           {/* STATUS */}
-          <Text style={[styles.secaoLabel, { fontSize: scale(10), marginTop: scale(16) }]}>STATUS</Text>
+          <Text style={[styles.secaoLabel, { fontSize: scale(10), marginTop: scale(16) }]}>{t('filtroMensalidades.status')}</Text>
           <View style={[styles.rowGap, { gap: scale(8), marginBottom: scale(20) }]}>
             {STATUS_OPCOES.map((op) => {
               const ativo = filtros.status.includes(op.key);
@@ -205,7 +206,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
                       color: ativo ? op.cor : 'rgba(30,25,25,0.45)',
                     }}
                   >
-                    {op.label}
+                    {t(`mensalidades.status.${op.key}`)}
                   </Text>
                 </TouchableOpacity>
               );
@@ -216,7 +217,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
 
           {/* MÊS / ANO */}
           <View style={[styles.rowBetween, { marginTop: scale(16), marginBottom: scale(10) }]}>
-            <Text style={[styles.secaoLabel, { fontSize: scale(10), marginBottom: 0 }]}>MÊS/ANO</Text>
+            <Text style={[styles.secaoLabel, { fontSize: scale(10), marginBottom: 0 }]}>{t('filtroMensalidades.mesAno')}</Text>
             <View style={styles.rowGap}>
               <TouchableOpacity
                 onPress={() => alterarAno(-1)}
@@ -278,38 +279,6 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
 
           <View style={styles.divider} />
 
-          {/* TIPO PAGAMENTO --> COMENTADO PQ NO BACK NÃO TEM FILTRO DE TIPO PAGAMENTO*/}
-          {/* <Text style={[styles.secaoLabel, { fontSize: scale(10), marginTop: scale(16) }]}>TIPO DE PAGAMENTO</Text>
-          <View style={[styles.rowGap, { gap: scale(8), flexWrap: 'wrap', marginBottom: scale(16) }]}>
-            {TIPOS_PAGAMENTO.map((tipo) => {
-              const ativo = filtros.tiposPagamento.includes(tipo);
-              return (
-                <TouchableOpacity
-                  key={tipo}
-                  onPress={() => alternarTipo(tipo)}
-                  style={{
-                    paddingHorizontal: scale(16),
-                    paddingVertical: scale(8),
-                    borderRadius: scale(20),
-                    backgroundColor: ativo ? '#E6F1FB' : '#f5f5f5',
-                    borderWidth: 1,
-                    borderColor: ativo ? '#286da8' : 'rgba(0,0,0,0.12)',
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontFamily: 'Poppins_500Medium',
-                      fontSize: scale(12),
-                      color: ativo ? '#0C447C' : 'rgba(30,25,25,0.45)',
-                    }}
-                  >
-                    {tipo}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View> */}
-
           {/* Resumo de filtros ativos */}
           <View
             style={{
@@ -332,7 +301,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
               }}
               numberOfLines={2}
             >
-              {resumo ?? 'Nenhum filtro selecionado'}
+              {resumo ?? t('filtroMensalidades.nenhumFiltro')}
             </Text>
           </View>
 
@@ -354,7 +323,7 @@ const FiltroMensalidadesModal = ({ visivel, onFechar, onAplicar }) => {
                 color: '#F3F9F9',
               }}
             >
-              Aplicar filtros
+              {t('filtroMensalidades.aplicarFiltros')}
             </Text>
           </TouchableOpacity>
         </ScrollView>

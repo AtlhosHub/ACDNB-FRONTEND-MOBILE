@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import ProfileButton from './ProfileButton';
 
 const backgroundImage = require('../assets/images/background.png');
@@ -9,6 +10,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <View style={{ width: '100%' }}>
@@ -33,7 +35,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
               color: '#F3F9F9',
             }}
           >
-            SMASH
+            {t('appHeader.logo')}
           </Text>
 
                     <Text
@@ -90,7 +92,7 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
             color: '#1e4e66',
           }}
         >
-          ← Voltar
+          {t('appHeader.voltar')}
         </Text>
       </TouchableOpacity>
     </View>

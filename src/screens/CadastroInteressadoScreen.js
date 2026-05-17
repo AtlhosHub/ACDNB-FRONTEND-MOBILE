@@ -18,10 +18,12 @@ import { horariosMock } from '../mocks/horariosMock';
 import { formatDate, formatDisplayDate, formatToApiDateTime, formatToApiDate } from '../../utils/formatters';
 import { api } from '../../api';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
 
 const CadastroInteressadoScreen = ({ navigation }) => {
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const { t } = useTranslation();
 
   const [nome, setNome] = useState('');
   const [cep, setCep] = useState('');
@@ -32,7 +34,6 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   const [horarioPreferencia, setHorarioPreferencia] = useState('');
   const [nomeSocial, setNomeSocial] = useState('');
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  // const [horarios] = useState(horariosMock);
   const [showContatoPicker, setShowContatoPicker] = useState(false);
   const [showNascimentoPicker, setShowNascimentoPicker] = useState(false);
   const [horarios, setHorarios] = useState([]);
@@ -50,7 +51,6 @@ const CadastroInteressadoScreen = ({ navigation }) => {
     email.trim() !== '' &&
     celular.trim() !== '' &&
     horarioPreferencia !== '';
-  // horarioPreferencia.trim() !== '';
 
 
   async function adicionarInteressado() {
@@ -81,7 +81,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
 
       const response = await api.post('/lista-espera/adicionar', payload);
       console.log('Sucesso:', response.data);
-      alert("Interessado cadastrado com sucesso!");
+      alert(t('cadastroInteressado.alerts.sucesso'));
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
@@ -111,7 +111,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
       const data = await response.json();
 
       if (data.erro) {
-        alert('CEP não encontrado', 'Digite um CEP válido.');
+        alert(t('cadastroInteressado.alerts.cepNaoEncontrado'), t('cadastroInteressado.alerts.cepInvalido'));
         return;
       }
 
@@ -121,7 +121,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
       setEstado(data.uf);
 
     } catch (error) {
-      alert('Erro', 'Não foi possível consultar o CEP.');
+      alert(t('cadastroInteressado.alerts.erro'), t('cadastroInteressado.alerts.erroCep'));
       console.error(error);
     }
   }
@@ -164,7 +164,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <AppHeader
-        subtitulo="Cadastro Interessado"
+        subtitulo={t('cadastroInteressado.headerSubtitle')}
         onBackPress={() => navigation?.goBack()}
       />
 
@@ -203,7 +203,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
                       marginLeft: scale(6),
                     }}
                   >
-                    Nome Social
+                    {t('cadastroInteressado.nomeSocialTooltip.title')}
                   </Text>
                 </View>
                 <Text
@@ -214,10 +214,9 @@ const CadastroInteressadoScreen = ({ navigation }) => {
                     lineHeight: scale(20),
                   }}
                 >
-                  O nome social é o nome pelo qual uma pessoa prefere ser chamada no dia a dia,
-                  podendo ser diferente do nome registrado em documentos oficiais.
+                  {t('cadastroInteressado.nomeSocialTooltip.body')}
                   {'\n\n'}
-                  Preencha este campo caso queira ser identificado(a) de forma diferente do seu nome legal.
+                  {t('cadastroInteressado.nomeSocialTooltip.body2')}
                 </Text>
                 <TouchableOpacity
                   onPress={() => setTooltipVisible(false)}
@@ -231,7 +230,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
                       color: '#286DA8',
                     }}
                   >
-                    Entendi
+                    {t('cadastroInteressado.nomeSocialTooltip.button')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -249,7 +248,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
 
-        <FieldLabel text="Nome" required />
+        <FieldLabel text={t('cadastroInteressado.fields.nome')} required />
         <TextInput
           value={nome}
           onChangeText={setNome}
@@ -263,7 +262,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           }}
         />
 
-        <FieldLabel text="CEP" required />
+        <FieldLabel text={t('cadastroInteressado.fields.cep')} required />
         <TextInput
           value={cep}
           onChangeText={(text) => {
@@ -281,7 +280,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         />
 
 
-        <FieldLabel text="Número" required />
+        <FieldLabel text={t('cadastroInteressado.fields.numero')} required />
         <TextInput
           value={numero}
           onChangeText={setNumero}
@@ -296,7 +295,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         />
 
         <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Data de Contato" required />
+          <FieldLabel text={t('cadastroInteressado.fields.dataContato')} required />
           <TouchableOpacity
             onPress={() => setShowContatoPicker(true)}
             style={{
@@ -309,7 +308,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             }}
           >
             <Text style={{ color: dataContato ? '#1E1919' : '#999' }}>
-              {dataContato || 'Selecionar data'}
+              {dataContato || t('cadastroInteressado.fields.selecionarData')}
             </Text>
           </TouchableOpacity>
 
@@ -329,7 +328,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
         </View>
 
         <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Data de Nascimento" required />
+          <FieldLabel text={t('cadastroInteressado.fields.dataNascimento')} required />
 
           <TouchableOpacity
             onPress={() => setShowNascimentoPicker(true)}
@@ -343,7 +342,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             }}
           >
             <Text style={{ color: dataNascimento ? '#1E1919' : '#999' }}>
-              {dataNascimento || 'Selecionar data'}
+              {dataNascimento || t('cadastroInteressado.fields.selecionarData')}
             </Text>
           </TouchableOpacity>
 
@@ -361,7 +360,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             />
           )}
         </View>
-        <FieldLabel text="Email" required />
+        <FieldLabel text={t('cadastroInteressado.fields.email')} required />
         <TextInput
           value={email}
           onChangeText={setEmail}
@@ -374,7 +373,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             marginBottom: scale(14)
           }}
         />
-        <FieldLabel text="Celular" required />
+        <FieldLabel text={t('cadastroInteressado.fields.celular')} required />
         <TextInput
           value={celular}
           onChangeText={setCelular}
@@ -388,7 +387,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
           }}
         />
         <View style={{ marginBottom: scale(14) }}>
-          <FieldLabel text="Horário de Preferência" required />
+          <FieldLabel text={t('cadastroInteressado.fields.horarioPreferencia')} required />
           <View
             style={{
               width: '100%',
@@ -405,7 +404,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
               selectedValue={horarioPreferencia}
               onValueChange={(value) => setHorarioPreferencia(value)}
             >
-              <Picker.Item label="Selecione um horário" value="" />
+              <Picker.Item label={t('cadastroInteressado.fields.selecioneHorario')} value="" />
 
               {horarios.map((item) => (
                 <Picker.Item
@@ -418,7 +417,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             </Picker>
           </View>
         </View>
-        <FieldLabel text="Nome Social" infoIcon />
+        <FieldLabel text={t('cadastroInteressado.fields.nomeSocial')} infoIcon />
         <TextInput
           value={nomeSocial}
           onChangeText={setNomeSocial}
@@ -434,7 +433,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
 
         <View style={{ flexDirection: 'row', gap: scale(12) }}>
           <Button
-            title="Cancelar"
+            title={t('cadastroInteressado.buttons.cancelar')}
             width="48%"
             backgroundColor="#FFFFFF"
             textColor="#E53935"
@@ -443,7 +442,7 @@ const CadastroInteressadoScreen = ({ navigation }) => {
             onPress={() => navigation?.goBack()}
           />
           <Button
-            title="Concluir"
+            title={t('cadastroInteressado.buttons.concluir')}
             width="48%"
             backgroundColor={camposObrigatoriosPreenchidos ? '#286DA8' : '#D9D9D9'}
             textColor="#FFFFFF"
