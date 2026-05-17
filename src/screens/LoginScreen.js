@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import Button from '../components/Button';
 import Label from '../components/Label';
 import { login } from '../services/api';
@@ -16,6 +17,7 @@ const bolinhaImage = require('../assets/images/orange_ball.png');
 const iconeImage = require('../assets/images/ACDNB_icon.png');
 
 const LoginScreen = () => {
+  const { t } = useTranslation();
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -37,11 +39,11 @@ const LoginScreen = () => {
     setErro('');
 
     if (!usuario.trim()) {
-      setErro('Informe o nome de usuário.');
+      setErro(t('login.errors.emptyUser'));
       return;
     }
     if (!senha.trim()) {
-      setErro('Informe a senha.');
+      setErro(t('login.errors.emptyPassword'));
       return;
     }
 
@@ -50,7 +52,7 @@ const LoginScreen = () => {
       await login(usuario.trim(), senha);
       navigation.replace('Main');
     } catch (e) {
-      setErro(e.message ?? 'Erro inesperado. Tente novamente.');
+      setErro(e.message ?? t('login.errors.unexpected'));
     } finally {
       setCarregando(false);
     }
@@ -109,7 +111,7 @@ const LoginScreen = () => {
                 marginBottom: scale(4),
               }}
             >
-              SMASH
+              {t('login.title')}
             </Text>
 
             <Text
@@ -121,7 +123,7 @@ const LoginScreen = () => {
                 textAlign: 'left',
               }}
             >
-              Sistema de Gerenciamento{`\n`}Financeiro
+              {t('login.subtitle')}
             </Text>
           </View>
 
@@ -157,7 +159,7 @@ const LoginScreen = () => {
                 textAlign: 'center',
               }}
             >
-              ACDNB{`\n`}Vila Formosa
+              {t('login.clubName')}
             </Text>
 
             <View
@@ -175,7 +177,7 @@ const LoginScreen = () => {
                   marginBottom: scale(8),
                 }}
               >
-                E-mail
+                {t('login.email')}
               </Text>
               <Label value={usuario} onChangeText={setUsuario} width="100%" placeholder="" keyboardType="email-address" autoCapitalize="none" />
             </View>
@@ -195,7 +197,7 @@ const LoginScreen = () => {
                   marginBottom: scale(8),
                 }}
               >
-                Senha
+                {t('login.password')}
               </Text>
               <Label value={senha} onChangeText={setSenha} width="100%" placeholder="" isPassword />
             </View>
@@ -230,7 +232,7 @@ const LoginScreen = () => {
                   textDecorationLine: 'underline',
                 }}
               >
-                Esqueci a senha
+                {t('login.forgotPassword')}
               </Text>
             </View>
 
@@ -238,7 +240,7 @@ const LoginScreen = () => {
               <ActivityIndicator size="large" color="#286DA8" style={{ marginTop: scale(8) }} />
             ) : (
               <Button
-                title="Entrar"
+                title={t('login.submit')}
                 width="100%"
                 onPress={handleLogin}
               />

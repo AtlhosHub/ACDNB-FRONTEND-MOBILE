@@ -1,0 +1,169 @@
+{
+  "login": {
+    "title": "SMASH",
+    "subtitle": "Sistema de Gerenciamento\nFinanceiro",
+    "clubName": "ACDNB\nVila Formosa",
+    "email": "E-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueci a senha",
+    "submit": "Entrar",
+    "errors": {
+      "emptyUser": "Informe o nome de usuário.",
+      "emptyPassword": "Informe a senha.",
+      "unexpected": "Erro inesperado. Tente novamente."
+    }
+  },
+  "cadastroInteressado": {
+    "headerSubtitle": "Cadastro Interessado",
+    "nomeSocialTooltip": {
+      "title": "Nome Social",
+      "body": "O nome social é o nome pelo qual uma pessoa prefere ser chamada no dia a dia, podendo ser diferente do nome registrado em documentos oficiais.",
+      "body2": "Preencha este campo caso queira ser identificado(a) de forma diferente do seu nome legal.",
+      "button": "Entendi"
+    },
+    "fields": {
+      "nome": "Nome",
+      "cep": "CEP",
+      "numero": "Número",
+      "dataContato": "Data de Contato",
+      "dataNascimento": "Data de Nascimento",
+      "email": "Email",
+      "celular": "Celular",
+      "horarioPreferencia": "Horário de Preferência",
+      "nomeSocial": "Nome Social",
+      "selecionarData": "Selecionar data",
+      "selecioneHorario": "Selecione um horário"
+    },
+    "buttons": {
+      "cancelar": "Cancelar",
+      "concluir": "Concluir"
+    },
+    "alerts": {
+      "sucesso": "Interessado cadastrado com sucesso!",
+      "cepNaoEncontrado": "CEP não encontrado",
+      "cepInvalido": "Digite um CEP válido.",
+      "erro": "Erro",
+      "erroCep": "Não foi possível consultar o CEP."
+    }
+  },
+  "detalhesAluno": {
+    "headerSubtitle": "Detalhes Ficha Aluno",
+    "tabs": {
+      "informacoes": "Informações",
+      "historicoPagamento": "Histórico de pagamento"
+    },
+    "fields": {
+      "nome": "Nome",
+      "nomeSocial": "Nome Social",
+      "genero": "Gênero",
+      "dataNascimento": "Data de Nascimento",
+      "nacionalidade": "Nacionalidade",
+      "rg": "RG",
+      "cpf": "CPF",
+      "profissao": "Profissão",
+      "telefone": "Telefone",
+      "celular": "Celular",
+      "email": "Email",
+      "statusPresenca": "Status de Presença",
+      "atestados": "Atestados",
+      "observacoes": "Observações",
+      "nivelHabilidade": "Nível de Habilidade"
+    },
+    "statusPresenca": {
+      "ativa": "Ativa",
+      "inativa": "Inativa"
+    },
+    "atestados": {
+      "sim": "Sim",
+      "nao": "Não"
+    },
+    "nivelHabilidade": {
+      "iniciante": "Iniciante",
+      "intermediario": "Intermediário",
+      "avancado": "Avançado",
+      "profissional": "Profissional"
+    },
+    "statusPagamento": {
+      "pago": "Pago",
+      "pendente": "Pendente",
+      "atrasado": "Atrasado",
+      "semPagamento": "Sem pagamento registrado - "
+    }
+  },
+  "listaEspera": {
+    "headerSubtitle": "Lista de Espera",
+    "searchPlaceholder": "Nome do Aluno",
+    "cadastrar": "CADASTRAR",
+    "carregando": "Carregando lista de espera...",
+    "colunas": {
+      "nome": "Nome",
+      "dataContato": "Data de Contato",
+      "horarioPreferencia": "Horario de Preferencia"
+    },
+    "mockNotice": "Exibindo dados de demonstração enquanto o backend não está disponível",
+    "paginacao": "Página {{pagina}} de {{total}}"
+  },
+  "mensalidades": {
+    "headerSubtitle": "Mensalidades",
+    "searchPlaceholder": "Nome do Aluno",
+    "filtro": "FILTRO",
+    "carregando": "Carregando mensalidades...",
+    "status": {
+      "pago": "Pago",
+      "pendente": "Pendente",
+      "atrasado": "Atrasado"
+    },
+    "mockNotice": "Exibindo dados de demonstração enquanto o backend não está disponível",
+    "paginacao": "Página {{pagina}} de {{total}}"
+  },
+  "trainerAI": {
+    "welcomeMessage": "Olá! Selecione os alunos na barra acima e me conte o que deseja trabalhar. Você pode digitar ou gravar um áudio.",
+    "avatarText": "AI",
+    "headerTitle": "Treinador AI",
+    "headerSubtitle": "● Pronto para ajudar",
+    "alunosButton": "Alunos",
+    "alunosButtonWithCount": "Alunos ({{count}})",
+    "erroBuscarAlunos": "Não foi possível carregar os alunos.",
+    "planoCriado": "Plano de treino gerado! Toque em Salvar PDF para baixar."
+  },
+  "dashboard": {
+    "statusPagamentoAnual": "Status de Pagamento (Anual)",
+    "pago": "Pago",
+    "pagoComDesconto": "Pago com Desconto",
+    "emAtraso": "Em Atraso",
+    "topRegioes": "Top Regiões",
+    "aniversariantes": "Aniversariantes"
+  },
+  "appHeader": {
+    "logo": "SMASH",
+    "voltar": "← Voltar"
+  },
+  "filtroMensalidades": {
+    "titulo": "Filtros",
+    "limparTudo": "Limpar tudo",
+    "status": "STATUS",
+    "mesAno": "MÊS/ANO",
+    "nenhumFiltro": "Nenhum filtro selecionado",
+    "aplicarFiltros": "Aplicar filtros",
+    "meses": {
+      "jan": "JAN",
+      "fev": "FEV",
+      "mar": "MAR",
+      "abr": "ABR",
+      "mai": "MAI",
+      "jun": "JUN",
+      "jul": "JUL",
+      "ago": "AGO",
+      "set": "SET",
+      "out": "OUT",
+      "nov": "NOV",
+      "dez": "DEZ"
+    }
+  },
+  "studentModal": {
+    "titulo": "Selecionar Alunos",
+    "concluir": "Concluir",
+    "buscarAluno": "Buscar aluno...",
+    "alunosSelecionados": "{{count}} aluno(s) selecionado(s)"
+  }
+}

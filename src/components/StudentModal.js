@@ -10,9 +10,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { LEVEL_LABEL, LEVEL_COLOR, AVATAR_COLORS, BRAND_BLUE } from "../mocks/constants";
+import { useTranslation } from "react-i18next";
 
 export function StudentModal({ visible, students, selected, onToggle, onClose }) {
   const [search, setSearch] = useState("");
+  const { t } = useTranslation();
 
   const filtered = students.filter((s) =>
     s?.nome?.toLowerCase().includes(search.toLowerCase())
@@ -29,9 +31,9 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
 
         {/* Cabeçalho */}
         <View style={styles.header}>
-          <Text style={styles.title}>Selecionar Alunos</Text>
+          <Text style={styles.title}>{t('studentModal.titulo')}</Text>
           <TouchableOpacity onPress={onClose}>
-            <Text style={styles.doneBtn}>Concluir</Text>
+            <Text style={styles.doneBtn}>{t('studentModal.concluir')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -39,7 +41,7 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
         <View style={styles.searchRow}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar aluno..."
+            placeholder={t('studentModal.buscarAluno')}
             placeholderTextColor="#aaa"
             value={search}
             onChangeText={setSearch}
@@ -98,7 +100,7 @@ export function StudentModal({ visible, students, selected, onToggle, onClose })
         {/* Rodapé com contador */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            {selected.size} aluno(s) selecionado(s)
+            {t('studentModal.alunosSelecionados', { count: selected.size })}
           </Text>
         </View>
 

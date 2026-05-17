@@ -1,3 +1,4 @@
+import './src/i18n';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { View, StyleSheet, Animated } from 'react-native';

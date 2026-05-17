@@ -10,13 +10,14 @@ import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
 import { api } from '../../api';
 import { formatarCPF, formatarData } from '../../utils/formatters';
+import { useTranslation } from 'react-i18next';
 
-const NIVEIS_HABILIDADE = ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'];
+const NIVEIS_HABILIDADE = ['iniciante', 'intermediario', 'avancado', 'profissional'];
 
 const STATUS_CONFIG = {
-  pago: { label: 'Pago', bg: '#EAF3DE', cor: '#27500A' },
-  pendente: { label: 'Pendente', bg: '#FAEEDA', cor: '#633806' },
-  atrasado: { label: 'Atrasado', bg: '#FCEBEB', cor: '#791F1F' },
+  pago: { key: 'pago', bg: '#EAF3DE', cor: '#27500A' },
+  pendente: { key: 'pendente', bg: '#FAEEDA', cor: '#633806' },
+  atrasado: { key: 'atrasado', bg: '#FCEBEB', cor: '#791F1F' },
 };
 
 
@@ -27,14 +28,13 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
 
   const { width: screenWidth } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
+  const { t } = useTranslation();
 
   const [abaAtiva, setAbaAtiva] = useState('informacoes');
 
-  // Futuramente virá de um GET ao backend
   const nivelHabilidade = alunoDetalhes?.nivel?.descricao ?? null;
   const observacoes = alunoObservacoes?.[0]?.descricao ?? null;
 
-  // statusConf removido — o histórico usa o status de cada pagamento individualmente
 
   async function getAlunoDetalhes(alunoId) {
     try {
@@ -134,31 +134,31 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
   const renderInformacoes = () => (
     <>
       {/* Dados do aluno — somente visualização */}
-      <CampoLeitura label="Nome" valor={alunoDetalhes?.nome} />
-      <CampoLeitura label="Nome Social" valor={alunoDetalhes?.nomeSocial} />
-      <CampoLeitura label="Gênero" valor={alunoDetalhes?.genero} />
-      <CampoLeitura label="Data de Nascimento" valor={formatarData(alunoDetalhes?.dataNascimento)} />
-      <CampoLeitura label="Nacionalidade" valor={alunoDetalhes?.nacionalidade} />
-      <CampoLeitura label="RG" valor={alunoDetalhes?.rg} />
-      <CampoLeitura label="CPF" valor={formatarCPF(alunoDetalhes?.cpf)} />
+      <CampoLeitura label={t('detalhesAluno.fields.nome')} valor={alunoDetalhes?.nome} />
+      <CampoLeitura label={t('detalhesAluno.fields.nomeSocial')} valor={alunoDetalhes?.nomeSocial} />
+      <CampoLeitura label={t('detalhesAluno.fields.genero')} valor={alunoDetalhes?.genero} />
+      <CampoLeitura label={t('detalhesAluno.fields.dataNascimento')} valor={formatarData(alunoDetalhes?.dataNascimento)} />
+      <CampoLeitura label={t('detalhesAluno.fields.nacionalidade')} valor={alunoDetalhes?.nacionalidade} />
+      <CampoLeitura label={t('detalhesAluno.fields.rg')} valor={alunoDetalhes?.rg} />
+      <CampoLeitura label={t('detalhesAluno.fields.cpf')} valor={formatarCPF(alunoDetalhes?.cpf)} />
       {/* <CampoLeitura label="Estado Civil" valor={alunoDetalhes?.estadoCivil} /> --> COMENTADO PQ NÃO TEM ESTADO CIVIL */}
-      <CampoLeitura label="Profissão" valor={alunoDetalhes?.profissao} />
-      <CampoLeitura label="Telefone" valor={alunoDetalhes?.telefone} />
-      <CampoLeitura label="Celular" valor={alunoDetalhes?.celular} />
-      <CampoLeitura label="Email" valor={alunoDetalhes?.email} />
+      <CampoLeitura label={t('detalhesAluno.fields.profissao')} valor={alunoDetalhes?.profissao} />
+      <CampoLeitura label={t('detalhesAluno.fields.telefone')} valor={alunoDetalhes?.telefone} />
+      <CampoLeitura label={t('detalhesAluno.fields.celular')} valor={alunoDetalhes?.celular} />
+      <CampoLeitura label={t('detalhesAluno.fields.email')} valor={alunoDetalhes?.email} />
 
       {/* Radio somente leitura */}
       <View style={{ flexDirection: 'row', gap: scale(32), marginBottom: scale(20) }}>
         <View>
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919', marginBottom: scale(6) }}>
-            Status de Presença
+            {t('detalhesAluno.fields.statusPresenca')}
           </Text>
           <View style={{ flexDirection: 'row', gap: scale(14) }}>
             {[
-              { label: 'Ativa', value: true },
-              { label: 'Inativa', value: false }
+              { labelKey: 'statusPresenca.ativa', value: true },
+              { labelKey: 'statusPresenca.inativa', value: false }
             ].map((opt) => (
-              <View key={opt.label} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View key={opt.labelKey} style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
                   style={{
                     width: scale(16),
@@ -183,7 +183,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
                   )}
                 </View>
                 <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919' }}>
-                  {opt.label}
+                  {t(`detalhesAluno.${opt.labelKey}`)}
                 </Text>
               </View>
             ))}
@@ -193,14 +193,14 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
         {/* ATESTADOS */}
         <View>
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919', marginBottom: scale(6) }}>
-            Atestados
+            {t('detalhesAluno.fields.atestados')}
           </Text>
           <View style={{ flexDirection: 'row', gap: scale(14) }}>
             {[
-              { label: 'Sim', value: true },
-              { label: 'Não', value: false }
+              { labelKey: 'atestados.sim', value: true },
+              { labelKey: 'atestados.nao', value: false }
             ].map((opt) => (
-              <View key={opt.label} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View key={opt.labelKey} style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
                   style={{
                     width: scale(16),
@@ -226,7 +226,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
                 </View>
 
                 <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919' }}>
-                  {opt.label}
+                  {t(`detalhesAluno.${opt.labelKey}`)}
                 </Text>
               </View>
             ))}
@@ -252,34 +252,34 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
           marginBottom: scale(16),
         }}
       >
-        Observações
+        {t('detalhesAluno.fields.observacoes')}
       </Text>
 
       <View style={{ marginBottom: scale(20) }}>
         <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919', marginBottom: scale(8) }}>
-          Nível de Habilidade
+          {t('detalhesAluno.fields.nivelHabilidade')}
         </Text>
         <View style={{ flexDirection: 'row', gap: scale(8), flexWrap: 'wrap' }}>
-          {NIVEIS_HABILIDADE.map((nivel) => (
+          {NIVEIS_HABILIDADE.map((nivelKey) => (
             <View
-              key={nivel}
+              key={nivelKey}
               style={{
                 paddingHorizontal: scale(16),
                 paddingVertical: scale(7),
                 borderRadius: scale(20),
                 borderWidth: 1.5,
-                borderColor: nivelHabilidade === nivel ? '#286DA8' : 'rgba(0,0,0,0.15)',
-                backgroundColor: nivelHabilidade === nivel ? 'rgba(40,109,168,0.08)' : 'rgba(0,0,0,0.03)',
+                borderColor: nivelHabilidade === t(`detalhesAluno.nivelHabilidade.${nivelKey}`) ? '#286DA8' : 'rgba(0,0,0,0.15)',
+                backgroundColor: nivelHabilidade === t(`detalhesAluno.nivelHabilidade.${nivelKey}`) ? 'rgba(40,109,168,0.08)' : 'rgba(0,0,0,0.03)',
               }}
             >
               <Text
                 style={{
                   fontFamily: 'Poppins_400Regular',
                   fontSize: scale(13),
-                  color: nivelHabilidade === nivel ? '#286DA8' : 'rgba(30,25,25,0.4)',
+                  color: nivelHabilidade === t(`detalhesAluno.nivelHabilidade.${nivelKey}`) ? '#286DA8' : 'rgba(30,25,25,0.4)',
                 }}
               >
-                {nivel}
+                {t(`detalhesAluno.nivelHabilidade.${nivelKey}`)}
               </Text>
             </View>
           ))}
@@ -288,7 +288,7 @@ const DetalhesAlunoScreen = ({ aluno, onVoltar }) => {
 
       <View style={{ marginBottom: scale(28) }}>
         <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(13), color: '#1E1919', marginBottom: scale(4) }}>
-          Observações
+          {t('detalhesAluno.fields.observacoes')}
         </Text>
         <View
           style={{
@@ -356,7 +356,7 @@ const renderHistoricoPagamento = () => (
             }}
           >
             <Text style={{ fontFamily: 'Poppins_500Medium', fontSize: scale(11), color: statusConf.cor }}>
-              {statusConf.label}
+              {t(`detalhesAluno.statusPagamento.${statusConf.key}`)}
             </Text>
           </View>
         </View>
@@ -367,7 +367,7 @@ const renderHistoricoPagamento = () => (
           </Text>
         ) : (
           <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: scale(12), color: '#777777' }}>
-            Sem pagamento registrado - {formatarData(pagamento.dataVencimento)}
+            {t('detalhesAluno.statusPagamento.semPagamento')}{formatarData(pagamento.dataVencimento)}
           </Text>
         )}
       </View>
@@ -378,7 +378,7 @@ const renderHistoricoPagamento = () => (
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <AppHeader subtitulo="Detalhes Ficha Aluno" onBackPress={onVoltar} />
+      <AppHeader subtitulo={t('detalhesAluno.headerSubtitle')} onBackPress={onVoltar} />
 
       {/* Tabs + Editar */}
       <View
@@ -416,7 +416,7 @@ const renderHistoricoPagamento = () => (
                 color: abaAtiva === 'informacoes' ? '#286DA8' : '#777777',
               }}
             >
-              Informações
+              {t('detalhesAluno.tabs.informacoes')}
             </Text>
           </TouchableOpacity>
 
@@ -436,7 +436,7 @@ const renderHistoricoPagamento = () => (
                 color: abaAtiva === 'historico' ? '#286DA8' : '#777777',
               }}
             >
-              Histórico de pagamento
+              {t('detalhesAluno.tabs.historicoPagamento')}
             </Text>
           </TouchableOpacity>
         </View>

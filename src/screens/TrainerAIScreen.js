@@ -19,17 +19,22 @@ import { StudentModal }     from "../components/StudentModal";
 import { ContextPills }     from "../components/ContextPills";
 import { MessageList }      from "../components/MessageList";
 import { ChatInput }        from "../components/ChatInput";
+import { useTranslation }   from "react-i18next";
 
 
-const WELCOME_MESSAGE = {
-  id:   "welcome",
-  role: "bot",
-  text: "Olá! Selecione os alunos na barra acima e me conte o que deseja trabalhar. Você pode digitar ou gravar um áudio.",
-  time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-};
+const WELCOME_MESSAGE_ID = "welcome";
 
 
 export default function TrainerAIScreen() {
+
+  const { t } = useTranslation();
+
+  const WELCOME_MESSAGE = {
+    id:   WELCOME_MESSAGE_ID,
+    role: "bot",
+    text: t('trainerAI.welcomeMessage'),
+    time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+  };
 
   const [messages,    setMessages]    = useState([WELCOME_MESSAGE]);
   const [input,       setInput]       = useState("");
@@ -60,7 +65,7 @@ export default function TrainerAIScreen() {
       .then(setAlunos)
       .catch((err) => {
         console.error("Erro ao buscar alunos:", err);
-        setErrorAlunos("Não foi possível carregar os alunos.");
+        setErrorAlunos(t('trainerAI.erroBuscarAlunos'));
       })
       .finally(() => setLoadingAlunos(false));
   }, [refreshKey]);
@@ -103,7 +108,7 @@ export default function TrainerAIScreen() {
           id:          Date.now().toString(),
           role:        "bot",
           text:        hasStudents
-                         ? "Plano de treino gerado! Toque em Salvar PDF para baixar."
+                         ? t('trainerAI.planoCriado')
                          : planContent,
           time:        new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           isPlan:      hasStudents,
@@ -131,11 +136,11 @@ export default function TrainerAIScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.botAvatar}>
-            <Text style={styles.botAvatarText}>AI</Text>
+            <Text style={styles.botAvatarText}>{t('trainerAI.avatarText')}</Text>
           </View>
           <View>
-            <Text style={styles.headerTitle}>Treinador AI</Text>
-            <Text style={styles.headerSub}>● Pronto para ajudar</Text>
+            <Text style={styles.headerTitle}>{t('trainerAI.headerTitle')}</Text>
+            <Text style={styles.headerSub}>{t('trainerAI.headerSubtitle')}</Text>
           </View>
         </View>
 
@@ -148,7 +153,7 @@ export default function TrainerAIScreen() {
             <ActivityIndicator size="small" color="#fff" />
           ) : (
             <Text style={styles.alunosBtnText}>
-              Alunos{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+              {selectedIds.size > 0 ? t('trainerAI.alunosButtonWithCount', { count: selectedIds.size }) : t('trainerAI.alunosButton')}
             </Text>
           )}
         </TouchableOpacity>

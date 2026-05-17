@@ -14,9 +14,11 @@ import { HeatMapTable } from './_components/heatMapTable';
 import { ListaAniversariante } from './_components/listaAniversariante';
 import { getAniversariantes, getGraphData, getTotalAtivo } from './_utils/apiRequests';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardScreen() {
     const scale = useScale();
+    const { t } = useTranslation();
 
     const [alunos, setAlunos] = useState([]);
     const [kpiList, setKpiList] = useState([]);
@@ -173,13 +175,13 @@ export default function DashboardScreen() {
                                 fontSize: scale(17),
                                 fontFamily: 'Poppins_600SemiBold',
                             }}>
-                            Status de Pagamento (Anual)
+                            {t('dashboard.statusPagamentoAnual')}
                         </Text>
 
                         <View style={{ flexDirection: 'row', gap: scale(15) }}>
-                            <GraphLabel text="Pago" color="#286DA8" textColor="#111827" />
-                            <GraphLabel text="Pago com Desconto" color="#FFAE03" textColor="#111827" />
-                            <GraphLabel text="Em Atraso" color="#CF3333" textColor="#111827" />
+                            <GraphLabel text={t('dashboard.pago')} color="#286DA8" textColor="#111827" />
+                            <GraphLabel text={t('dashboard.pagoComDesconto')} color="#FFAE03" textColor="#111827" />
+                            <GraphLabel text={t('dashboard.emAtraso')} color="#CF3333" textColor="#111827" />
                         </View>
                     </View>
 
@@ -195,7 +197,7 @@ export default function DashboardScreen() {
                             fontSize: scale(17),
                             fontFamily: 'Poppins_600SemiBold',
                         }}>
-                        Top Regiões
+                        {t('dashboard.topRegioes')}
                     </Text>
 
                     <HeatMap
@@ -216,7 +218,7 @@ export default function DashboardScreen() {
                             fontSize: scale(17),
                             fontFamily: 'Poppins_600SemiBold',
                         }}>
-                        Aniversariantes
+                        {t('dashboard.aniversariantes')}
                     </Text>
                     <ListaAniversariante
                         alunos={alunos}

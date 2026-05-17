@@ -18,11 +18,11 @@ import { ActivityIndicator } from 'react-native';
 import { api } from '../../api';
 import { formatarData, formatarHorario } from '../../utils/formatters';
 import { useScale } from '../../utils/scale';
+import { useTranslation } from 'react-i18next';
 
 const REGISTROSPORPAGINA = 10;
 
 const normalizarRegistro = (registro, indice) => {
-  // Trata dados da API real
   if (registro.nome?.value) {
     return {
       id: String(registro.id ?? indice + 1),
@@ -57,6 +57,7 @@ const ListaEsperaScreen = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scale = (size) => (screenWidth / 375) * size;
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const [registros, setRegistros] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -143,21 +144,21 @@ const ListaEsperaScreen = () => {
 
   const colunas = useMemo(
     () => [
-      { key: 'nomeAluno', label: 'Nome', flex: 2.2, align: 'left' },
+      { key: 'nomeAluno', label: t('listaEspera.colunas.nome'), flex: 2.2, align: 'left' },
       {
         key: 'dataContato',
-        label: 'Data de Contato',
+        label: t('listaEspera.colunas.dataContato'),
         flex: 1.2,
         align: 'center',
       },
       {
         key: 'horarioPreferencia',
-        label: 'Horario de Preferencia',
+        label: t('listaEspera.colunas.horarioPreferencia'),
         flex: 1.1,
         align: 'center',
       },
     ],
-    [],
+    [t],
   );
 
   const totalPaginas = Math.max(
@@ -175,7 +176,7 @@ const ListaEsperaScreen = () => {
       }}
     >
       <AppHeader
-        subtitulo={'Lista de Espera'}
+        subtitulo={t('listaEspera.headerSubtitle')}
         onBackPress={() => console.log('voltar pressionado')}
       />
       <ScrollView
@@ -209,7 +210,7 @@ const ListaEsperaScreen = () => {
             <TextInput
               value={textoBusca}
               onChangeText={setTextoBusca}
-              placeholder="Nome do Aluno"
+              placeholder={t('listaEspera.searchPlaceholder')}
               style={{
                 flex: 1,
                 fontSize: scale(12),
@@ -233,7 +234,7 @@ const ListaEsperaScreen = () => {
             }}
           >
             <Button
-              title='CADASTRAR'
+              title={t('listaEspera.cadastrar')}
               onPress={() => navigation.navigate('CadastroInteressado')}
               width={scale(88)}
               height={scale(30)}
@@ -273,7 +274,7 @@ const ListaEsperaScreen = () => {
                   color: '#0d3c53',
                 }}
               >
-                Carregando lista de espera...
+                {t('listaEspera.carregando')}
               </Text>
             </View>
           ) : (
@@ -427,8 +428,7 @@ const ListaEsperaScreen = () => {
                 color: '#286da8',
               }}
             >
-              Exibindo dados de demonstração enquanto o backend não está
-              disponível
+            {t('listaEspera.mockNotice')}
             </Text>
           )
         }
@@ -472,7 +472,7 @@ const ListaEsperaScreen = () => {
                   color: '#0d3c53',
                 }}
               >
-                Página {paginaAtual} de {totalPaginas}
+                {t('listaEspera.paginacao', { pagina: paginaAtual, total: totalPaginas })}
               </Text>
               <TouchableOpacity
                 onPress={() =>
