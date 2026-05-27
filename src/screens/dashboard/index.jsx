@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { HeatMapTable } from './_components/heatMapTable';
 import { ListaAniversariante } from './_components/listaAniversariante';
-import { getAniversariantes, getGraphData, getTotalAtivo } from './_utils/apiRequests';
+import { getAniversariantes, getGraphData, getTotalAtivo, getCensoRank } from './_utils/apiRequests';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
@@ -35,10 +35,7 @@ export default function DashboardScreen() {
         }, []),
     );
 
-    const [mapData, setMapData] = useState([
-        { latitude: -23.5558, longitude: -46.6358, area: 125, nome: 'Liberdade - SP', rank: 1, points: 200 },
-        { latitude: -23.5705, longitude: -46.6200, area: 200, nome: 'Cambuci - SP', rank: 2, points: 123 }
-    ]);
+    const [mapData, setMapData] = useState([]);
 
     const [region, setRegion] = useState({
         latitude: -23.5558,
@@ -93,6 +90,16 @@ export default function DashboardScreen() {
         setAlunos(response);
     }
 
+    const buildMapData = async () => {
+        const response = await getCensoRank();
+
+        if (response.length === 0) {
+            setMapData([]);
+        }
+
+        setMapData(response);
+    }
+
     const initliaze = async () => {
         const graphData = await getGraphData();
 
@@ -112,6 +119,12 @@ export default function DashboardScreen() {
             await buildAniversariantes();
         } catch (error) {
             console.error('Erro ao carregar aniversariantes:', error);
+        }
+
+        try {
+            await buildMapData();
+        } catch (error) {
+            console.error('Erro ao carregar dados do mapa:', error);
         }
     }
 
