@@ -36,6 +36,8 @@ export default function DashboardScreen() {
     );
 
     const [mapData, setMapData] = useState([]);
+    const [mapDataLoading, setMapDataLoading] = useState(false);
+    const [mapDataEmpty, setMapDataEmpty] = useState(false);
 
     const [region, setRegion] = useState({
         latitude: -23.5558,
@@ -91,13 +93,21 @@ export default function DashboardScreen() {
     }
 
     const buildMapData = async () => {
-        const response = await getCensoRank();
+        try {
+            setMapDataLoading(true);
+            setMapDataEmpty(false);
+            const response = await getCensoRank();
 
-        if (response.length === 0) {
-            setMapData([]);
+            if (response.length === 0) {
+                setMapData([]);
+                setMapDataEmpty(true);
+            } else {
+                setMapData(response);
+                setMapDataEmpty(false);
+            }
+        } finally {
+            setMapDataLoading(false);
         }
-
-        setMapData(response);
     }
 
     const initliaze = async () => {
@@ -213,15 +223,45 @@ export default function DashboardScreen() {
                         {t('dashboard.topRegioes')}
                     </Text>
 
-                    <HeatMap
-                        mapPoints={mapData}
-                        defaultRegion={region}
-                        setDefaultRegion={setRegion}
-                    />
-                    <HeatMapTable
-                        tableData={mapData}
-                        setDefaultRegion={setRegion}
-                    />
+                    {mapDataLoading ? (
+                        <Text
+                            style={{
+                                color: '#6B7280',
+                                fontSize: scale(14),
+                                fontFamily: 'Poppins_400Regular',
+                                marginTop: scale(10),
+                                textAlign: 'center',
+                            }}>
+                            Os dados estão carregando...
+                        </Text>
+                    ) : mapDataEmpty ? (
+                        <Text
+                            style={{
+                                color: '#6B7280',
+                                fontSize: scale(14),
+                                fontFamily: 'Poppins_400Regular',
+                                marginTop: scale(10),
+                                textAlign: 'center',
+                                borderColor: '#6B7280',
+                                borderWidth: 1,
+                                borderRadius: scale(8),
+                                padding: scale(10),
+                            }}>
+                            Não há dados o suficiente na base.
+                        </Text>
+                    ) : (
+                        <>
+                            <HeatMap
+                                mapPoints={mapData}
+                                defaultRegion={region}
+                                setDefaultRegion={setRegion}
+                            />
+                            <HeatMapTable
+                                tableData={mapData}
+                                setDefaultRegion={setRegion}
+                            />
+                        </>
+                    )}
                 </View>
 
                 <View>
