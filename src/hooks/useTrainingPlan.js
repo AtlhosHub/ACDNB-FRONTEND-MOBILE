@@ -6,34 +6,64 @@ import * as FileSystem from "expo-file-system/legacy";
 import { gerarPlano } from "../services/api";
 
 
+const EXERCISE_DEFINITIONS = {
+  forehand: { labels: ["forehand", "fh"], title: "Forehand", img: null },
+  backhand: { labels: ["backhand", "bh"], title: "Backhand", img: null },
+  topspin:  { labels: ["topspin"], title: "Topspin", img: null },
+  bloqueio: { labels: ["bloqueio", "block"], title: "Bloqueio", img: null },
+  saque:    { labels: ["saque", "serve"], title: "Saque", img: null },
+};
+
+function detectExercises(text) {
+  const found = new Set();
+  if (!text) return [];
+  const lower = text.toLowerCase();
+
+  Object.entries(EXERCISE_DEFINITIONS).forEach(([key, def]) => {
+    def.labels.forEach((lbl) => {
+      const safe = lbl.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+      const re = new RegExp("\\b" + safe + "\\b", "i");
+      if (re.test(lower)) found.add(key);
+    });
+  });
+
+  return Array.from(found);
+}
+
+function buildExercisesHtml(keys) {
+  if (!keys || keys.length === 0) return "";
+
+  const cards = keys
+    .map((k) => {
+      const title = EXERCISE_DEFINITIONS[k]?.title ?? k;
+      return `
+        <div style="border:1px solid #dfe9fb;border-radius:8px;padding:8px;text-align:center;width:110px;flex-shrink:0;background:#fff;">
+          <div style="height:60px;background:#f4f8fd;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#6b7a99;margin-bottom:6px;">sem imagem</div>
+          <div style="font-size:11px;font-weight:600;color:#1652A1;">${title}</div>
+        </div>`;
+    })
+    .join("");
+
+  return `<h2>Técnicas referenciadas neste plano</h2><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;">${cards}</div>`;
+}
+
+
+
 function markdownToHtml(text) {
   return text
     .replace(/```[\s\S]*?```/g, "")
-
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
     .replace(/^## (.+)$/gm,  "<h2>$1</h2>")
     .replace(/^# (.+)$/gm,   "<h1>$1</h1>")
-
-    // Negrito **texto** ou __texto__
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/__(.+?)__/g,     "<strong>$1</strong>")
-
-    // Itálico *texto* ou _texto_ (cuidado para não pegar **)
     .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
     .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g,       "<em>$1</em>")
-
-    // Separador ---
     .replace(/^---+$/gm, "<hr/>")
-
-    // Itens de lista * item ou - item
     .replace(/^[\*\-] (.+)$/gm, "<li>$1</li>")
-
-    // Agrupa <li> soltos em <ul>
     .replace(/(<li>[\s\S]+?<\/li>)(\n(?!<li>)|$)/g, "<ul>$1</ul>")
-
-    // Linhas normais viram <p> (ignora linhas que já são tags HTML)
     .split("\n")
-    .map(line => {
+    .map((line) => {
       const trimmed = line.trim();
       if (!trimmed) return "";
       if (/^<(h[1-6]|ul|li|hr|strong|em)/.test(trimmed)) return trimmed;
@@ -42,6 +72,7 @@ function markdownToHtml(text) {
     .filter(Boolean)
     .join("\n");
 }
+
 
 
 function gerarNomeArquivo() {
@@ -53,6 +84,7 @@ function gerarNomeArquivo() {
   const min  = String(now.getMinutes()).padStart(2, "0");
   return `Plano_Treino_${dd}-${mm}-${yyyy}_${hh}-${min}.pdf`;
 }
+
 
 
 function buildPdfHtml(planText, students, date) {
@@ -75,7 +107,9 @@ function buildPdfHtml(planText, students, date) {
     </tr>`;
   }).join("");
 
-  const planHtml = markdownToHtml(planText);
+  const exerciseKeys   = detectExercises(planText);
+  const exercisesHtml  = buildExercisesHtml(exerciseKeys);
+  const planHtml       = markdownToHtml(planText);
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -111,6 +145,8 @@ function buildPdfHtml(planText, students, date) {
     <tbody>${studentRows}</tbody>
   </table>
 
+  ${exercisesHtml}
+
   <h2>Plano de treino</h2>
   <div class="plan-box">${planHtml}</div>
 
@@ -120,6 +156,9 @@ function buildPdfHtml(planText, students, date) {
 }
 
 
+// ---------------------------------------------------------------------------
+// Hook principal
+// ---------------------------------------------------------------------------
 export function useTrainingPlan() {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -191,3 +230,4 @@ export function useTrainingPlan() {
 
   return { isLoading, generatePlan, savePdf };
 }
+
