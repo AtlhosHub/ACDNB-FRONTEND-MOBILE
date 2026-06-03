@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { HeatMapTable } from './_components/heatMapTable';
 import { ListaAniversariante } from './_components/listaAniversariante';
-import { getAniversariantes, getGraphData, getTotalAtivo } from './_utils/apiRequests';
+import { getAniversariantes, getGraphData, getTotalAtivo, getCensoRank } from './_utils/apiRequests';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
@@ -35,10 +35,9 @@ export default function DashboardScreen() {
         }, []),
     );
 
-    const [mapData, setMapData] = useState([
-        { latitude: -23.5558, longitude: -46.6358, area: 125, nome: 'Liberdade - SP', rank: 1, points: 200 },
-        { latitude: -23.5705, longitude: -46.6200, area: 200, nome: 'Cambuci - SP', rank: 2, points: 123 }
-    ]);
+    const [mapData, setMapData] = useState([]);
+    const [mapDataLoading, setMapDataLoading] = useState(false);
+    const [mapDataEmpty, setMapDataEmpty] = useState(false);
 
     const [region, setRegion] = useState({
         latitude: -23.5558,
@@ -93,6 +92,24 @@ export default function DashboardScreen() {
         setAlunos(response);
     }
 
+    const buildMapData = async () => {
+        try {
+            setMapDataLoading(true);
+            setMapDataEmpty(false);
+            const response = await getCensoRank();
+
+            if (response.length === 0) {
+                setMapData([]);
+                setMapDataEmpty(true);
+            } else {
+                setMapData(response);
+                setMapDataEmpty(false);
+            }
+        } finally {
+            setMapDataLoading(false);
+        }
+    }
+
     const initliaze = async () => {
         const graphData = await getGraphData();
 
@@ -112,6 +129,12 @@ export default function DashboardScreen() {
             await buildAniversariantes();
         } catch (error) {
             console.error('Erro ao carregar aniversariantes:', error);
+        }
+
+        try {
+            await buildMapData();
+        } catch (error) {
+            console.error('Erro ao carregar dados do mapa:', error);
         }
     }
 
@@ -200,15 +223,45 @@ export default function DashboardScreen() {
                         {t('dashboard.topRegioes')}
                     </Text>
 
-                    <HeatMap
-                        mapPoints={mapData}
-                        defaultRegion={region}
-                        setDefaultRegion={setRegion}
-                    />
-                    <HeatMapTable
-                        tableData={mapData}
-                        setDefaultRegion={setRegion}
-                    />
+                    {mapDataLoading ? (
+                        <Text
+                            style={{
+                                color: '#6B7280',
+                                fontSize: scale(14),
+                                fontFamily: 'Poppins_400Regular',
+                                marginTop: scale(10),
+                                textAlign: 'center',
+                            }}>
+                            Os dados estão carregando...
+                        </Text>
+                    ) : mapDataEmpty ? (
+                        <Text
+                            style={{
+                                color: '#6B7280',
+                                fontSize: scale(14),
+                                fontFamily: 'Poppins_400Regular',
+                                marginTop: scale(10),
+                                textAlign: 'center',
+                                borderColor: '#6B7280',
+                                borderWidth: 1,
+                                borderRadius: scale(8),
+                                padding: scale(10),
+                            }}>
+                            Não há dados o suficiente na base.
+                        </Text>
+                    ) : (
+                        <>
+                            <HeatMap
+                                mapPoints={mapData}
+                                defaultRegion={region}
+                                setDefaultRegion={setRegion}
+                            />
+                            <HeatMapTable
+                                tableData={mapData}
+                                setDefaultRegion={setRegion}
+                            />
+                        </>
+                    )}
                 </View>
 
                 <View>

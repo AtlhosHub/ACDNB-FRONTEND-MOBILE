@@ -29,3 +29,13 @@ export const getTotalAtivo = async () => {
         throw error;
     }
 }
+
+export const getCensoRank = async () => {
+    try {
+        const response = await api.get('/censo/ranking');
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar ranking do censo:', error);
+        throw error;
+    }
+}
