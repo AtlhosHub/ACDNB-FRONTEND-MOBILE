@@ -18,8 +18,8 @@ const iconeImage = require('../assets/images/ACDNB_icon.png');
 
 const LoginScreen = () => {
   const { t } = useTranslation();
-  const [usuario, setUsuario] = useState('');
-  const [senha, setSenha] = useState('');
+  const [usuario, setUsuario] = useState('user@adm.com');
+  const [senha, setSenha] = useState('Senha@123');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
   const navigation = useNavigation();
@@ -217,27 +217,8 @@ const LoginScreen = () => {
               </Text>
             )}
 
-            <View
-              style={{
-                width: '100%',
-                alignItems: 'flex-end',
-                marginBottom: scale(25),
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: 'Poppins_400Regular',
-                  fontSize: scale(14),
-                  color: '#286DA8',
-                  textDecorationLine: 'underline',
-                }}
-              >
-                {t('login.forgotPassword')}
-              </Text>
-            </View>
-
             {carregando ? (
-              <ActivityIndicator size="large" color="#286DA8" style={{ marginTop: scale(8) }} />
+              <ActivityIndicator size="large" color="#286DA8" style={{ marginTop: scale(25) }} />
             ) : (
               <Button
                 title={t('login.submit')}

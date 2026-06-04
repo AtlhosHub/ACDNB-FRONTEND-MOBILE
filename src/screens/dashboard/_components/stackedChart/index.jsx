@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { useScale } from '../../../../../utils/scale';
+import { shadowBoxStyle } from '../..';
 
 const meses = [
     'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
@@ -50,7 +51,20 @@ const StackedChart = ({ data = [] }) => {
     }, [data]);
 
     return (
-        <View>
+        <View
+            style={[
+                shadowBoxStyle.shadowBox,
+                {
+                    backgroundColor: "#ffffff",
+                    borderColor: "#dee2e6",
+                    borderRadius: scale(16),
+                    borderWidth: 1,
+                    paddingBlock: scale(20),
+                    paddingHorizontal: scale(15),
+                    overflow: 'hidden',
+                }
+            ]}
+        >
             {data.length > 0 ? (
                 <BarChart
                     stackData={chartData}
