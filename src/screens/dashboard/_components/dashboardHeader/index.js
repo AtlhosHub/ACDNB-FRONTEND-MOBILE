@@ -44,7 +44,7 @@ export default function DashboardHeader() {
                             transform: [{ translateY: scale(2.5) }],
                         }}
                     >
-                        SMASH
+                        ACDNB
                     </Text>
                 </View>
 
@@ -54,7 +54,7 @@ export default function DashboardHeader() {
                 style={{
                     width: '100%',
                     alignItems: 'center',
-                    paddingBlock: scale(20)
+                    paddingBottom: scale(20)
                 }}
             >
                 <Text

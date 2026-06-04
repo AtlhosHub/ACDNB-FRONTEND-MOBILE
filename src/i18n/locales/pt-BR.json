@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "SMASH",
+    "title": "ACDNB",
     "subtitle": "Sistema de Gerenciamento\nFinanceiro",
     "clubName": "ACDNB\nVila Formosa",
     "email": "E-mail",
@@ -135,7 +135,7 @@
     "aniversariantes": "Aniversariantes"
   },
   "appHeader": {
-    "logo": "SMASH",
+    "logo": "ACDNB",
     "voltar": "← Voltar"
   },
   "filtroMensalidades": {

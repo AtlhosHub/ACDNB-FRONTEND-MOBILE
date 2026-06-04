@@ -1,6 +1,6 @@
-import { DiscountBadgeSolid, GroupSolid, OverdueSolid } from '../../../../../assets/icons';
+import { DiscountBadgeSolid, ExitSolid, GroupSolid, OverdueSolid } from '../../../../../assets/icons';
 
-export const getIcon = (key) => {
+export const getIcon = (key: string) => {
     switch (key) {
         case 'alunos':
             return GroupSolid
@@ -8,5 +8,7 @@ export const getIcon = (key) => {
             return DiscountBadgeSolid
         case 'pagAtrasados':
             return OverdueSolid
+        case 'exit':
+            return ExitSolid
     }
 }

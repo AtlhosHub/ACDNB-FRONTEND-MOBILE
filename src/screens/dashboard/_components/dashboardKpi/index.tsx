@@ -1,14 +1,22 @@
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useScale } from '../../../../../utils/scale';
 import SystemIcons from '../../../../components/systemIcons';
+import { shadowBoxStyle } from '../..';
 
-export default function DashboardKpi({ kpiData }) {
+interface DashboardKpiProps {
+    title: string;
+    icon?: string;
+    value: string;
+}
+
+export default function DashboardKpi({ kpiData }: { kpiData: DashboardKpiProps | null }) {
     const scale = useScale();
 
     return (
         <View
-            style={
-                [styles.container,
+            style={[
+                styles.container,
+                shadowBoxStyle.shadowBox,
                 {
                     paddingVertical: scale(10),
                     paddingHorizontal: scale(10),
@@ -16,7 +24,7 @@ export default function DashboardKpi({ kpiData }) {
                     minWidth: scale(180),
                     minHeight: scale(81),
                 }
-                ]}
+            ]}
         >
             {kpiData ? (
                 <View>
@@ -51,10 +59,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
     },
     title: {
         color: '#111827',

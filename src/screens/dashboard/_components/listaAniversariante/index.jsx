@@ -1,19 +1,24 @@
-import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, ScrollView } from 'react-native';
+import { useEffect, useState } from "react";
+import {
+    ScrollView,
+    Text,
+    View,
+} from "react-native";
 
-import { meses } from './enum/meses';
-import { useScale } from '../../../../../utils/scale';
+import dayjs from "dayjs";
+import { useScale } from "../../../../../utils/scale";
+import { meses } from "./enum/meses";
 
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { shadowBoxStyle } from "../..";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 export const ListaAniversariante = ({ alunos }) => {
     const scale = useScale();
-    const dataAtual = dayjs().startOf('day');
+    const dataAtual = dayjs().startOf("day");
 
     const [respostaFormatada, setRespostaFormatada] = useState([]);
 
@@ -24,6 +29,7 @@ export const ListaAniversariante = ({ alunos }) => {
         }
 
         const respostaObj = {};
+
         alunos.forEach(({ nome, dataNascimento }) => {
             if (!dataNascimento) return;
 
@@ -31,162 +37,255 @@ export const ListaAniversariante = ({ alunos }) => {
 
             if (!d.isValid()) return;
 
-            const dia = String(d.date()).padStart(2, '0');
+            const dia = String(d.date()).padStart(2, "0");
             const mes = d.month();
-            const nomeMes = meses[mes] ?? `MÊS ${mes + 1}`;
-            const mesStr = String(mes + 1).padStart(2, '0');
 
-            if (!respostaObj[nomeMes]) respostaObj[nomeMes] = [];
+            const nomeMes =
+                meses[mes] ?? `MÊS ${mes + 1}`;
+
+            const mesStr = String(mes + 1).padStart(2, "0");
+
+            if (!respostaObj[nomeMes]) {
+                respostaObj[nomeMes] = [];
+            }
 
             respostaObj[nomeMes].push({
                 nome,
-                data: `${dia}/${mesStr}`
+                data: `${dia}/${mesStr}`,
             });
         });
 
-        Object.keys(respostaObj).forEach(m => {
+        Object.keys(respostaObj).forEach((m) => {
             respostaObj[m].sort((a, b) => {
-                const diaA = parseInt(a.data.split('/')[0], 10);
-                const diaB = parseInt(b.data.split('/')[0], 10);
+                const diaA = parseInt(
+                    a.data.split("/")[0],
+                    10
+                );
+
+                const diaB = parseInt(
+                    b.data.split("/")[0],
+                    10
+                );
+
                 return diaA - diaB;
             });
         });
 
         const resultado = Object.entries(respostaObj)
-            .map(([mes, aniversariantes]) => ({ mes, aniversariantes }))
-            .sort((a, b) => meses.indexOf(a.mes) - meses.indexOf(b.mes));
+            .map(([mes, aniversariantes]) => ({
+                mes,
+                aniversariantes,
+            }))
+            .sort(
+                (a, b) =>
+                    meses.indexOf(a.mes) -
+                    meses.indexOf(b.mes)
+            );
 
         setRespostaFormatada(resultado);
     };
 
     const verificarAniversario = (data) => {
-        const [dia, mes] = data.split('/');
+        const [dia, mes] = data.split("/");
+
         const anoAtual = dayjs().year();
 
-        const dataFormatada = dayjs(`${anoAtual}-${mes}-${dia}`).startOf('day');
-        if (dataFormatada.isBefore(dataAtual)) return 'niver-passado'
-        else if (dataFormatada.isAfter(dataAtual)) return 'niver-futuro';
-        else return 'niver-atual';
+        const dataFormatada = dayjs(
+            `${anoAtual}-${mes}-${dia}`
+        ).startOf("day");
+
+        if (dataFormatada.isBefore(dataAtual)) {
+            return "niver-passado";
+        } else if (dataFormatada.isAfter(dataAtual)) {
+            return "niver-futuro";
+        }
+
+        return "niver-atual";
     };
 
     useEffect(() => {
-        if (alunos.length > 0) formatarResposta();
+        if (alunos.length > 0) {
+            formatarResposta();
+        }
     }, [alunos]);
 
     return (
-        <ScrollView
-            style={{
-                borderWidth: scale(0),
-                borderRadius: scale(8),
-                maxHeight: scale(300),
-                padding: scale(8),
-                backgroundColor: respostaFormatada.length > 0 ? '#f5f5f5' : '#e6e6e6',
-            }}
-            scrollEnabled={true}
-            nestedScrollEnabled={true}
+        <View
+            style={[
+                shadowBoxStyle.shadowBox,
+                {
+                    backgroundColor: "#ffffff",
+                    borderColor: "#dee2e6",
+                    borderRadius: scale(16),
+                    borderWidth: 1,
+                    padding: scale(16),
+                    elevation: 3,
+                }
+            ]}
         >
-            {respostaFormatada.length > 0 ?
-                respostaFormatada.map(({ mes, aniversariantes }) => {
-                    const inicio = dataAtual.subtract(7, 'day');
-                    const fim = dataAtual.add(2, 'month');
+            <ScrollView
+                style={{
+                    maxHeight: scale(300),
+                }}
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled
+            >
+                {respostaFormatada.length > 0 ? (
+                    respostaFormatada.map(
+                        ({ mes, aniversariantes }) => {
+                            const inicio = dataAtual.subtract(7, "day");
+                            const fim = dataAtual.add(2, "month");
 
-                    const proximos = aniversariantes.filter(({ data }) => {
-                        const [dia, mesStr] = data.split('/');
-                        const aniversario = dayjs(`${dayjs().year()}-${mesStr}-${dia}`);
-                        return aniversario.isSameOrAfter(inicio) && aniversario.isSameOrBefore(fim);
-                    });
+                            const proximos =
+                                aniversariantes.filter(
+                                    ({ data }) => {
+                                        const [dia, mesStr] = data.split("/");
 
-                    if (!proximos.length) return null;
+                                        const aniversario = dayjs(
+                                            `${dayjs().year()}-${mesStr}-${dia}`
+                                        );
 
-                    return (
-                        <View
-                            style={style.niverWrap}
-                            key={mes}
-                        >
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <View style={[style.mesNiverBox, style.mesNiverBoxAtual]} />
-                                <Text style={style.spanAtual}>{mes.toUpperCase()}</Text>
-                                <View style={[style.mesNiverBox, style.mesNiverBoxAtual]} />
-                            </View>
-                            <View style={{ flexDirection: 'column', marginVertical: scale(4) }}>
-                                {proximos.map(({ nome, data }, index) => {
-                                    const classe = verificarAniversario(data);
-                                    const aniversario = classe === 'niver-atual';
-                                    const textStyle = classe === 'niver-passado'
-                                        ? style.niverPassado
-                                        : classe === 'niver-atual'
-                                            ? style.niverAtual
-                                            : style.niverFuturo;
+                                        const dentroDoPeriodo =
+                                            aniversario.isSameOrAfter(inicio) &&
+                                            aniversario.isSameOrBefore(fim);
 
-                                    return (
-                                        <View key={`${nome}-${data}-${index}`}>
-                                            <Text style={textStyle}>{data} - {nome}{aniversario && ' 🎉'}</Text>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </View>
-                    );
-                })
-                :
-                <View style={{
-                    padding: 10,
-                    alignItems: 'center'
-                }}>
-                    <Text
+                                        return dentroDoPeriodo
+                                    }
+                                );
+
+                            if (!proximos.length) { return null }
+
+                            return (
+                                <View
+                                    key={mes}
+                                    style={{
+                                        marginBottom: scale(16),
+                                    }}
+                                >
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            marginBottom: scale(8),
+                                        }}
+                                    >
+                                        <View
+                                            style={{
+                                                flex: 1,
+                                                height: 1,
+                                                backgroundColor: "#6ea8fe",
+                                            }}
+                                        />
+
+                                        <Text
+                                            style={{
+                                                marginHorizontal: scale(8),
+                                                fontSize: scale(12),
+                                                fontWeight: "700",
+                                                color: "#286DA8",
+                                                textTransform: "uppercase",
+                                            }}
+                                        >
+                                            {mes}
+                                        </Text>
+
+                                        <View
+                                            style={{
+                                                flex: 1,
+                                                height: 1,
+                                                backgroundColor: "#286DA8",
+                                            }}
+                                        />
+                                    </View>
+
+                                    <View
+                                        style={{
+                                            gap: scale(6),
+                                        }}
+                                    >
+                                        {proximos.map((
+                                            { nome, data },
+                                            index
+                                        ) => {
+                                            const classe = verificarAniversario(data);
+
+                                            const aniversario =
+                                                classe ===
+                                                "niver-atual";
+
+                                            const color =
+                                                classe ===
+                                                    "niver-passado"
+                                                    ? "#9aa7b3"
+                                                    : classe ===
+                                                        "niver-atual"
+                                                        ? "#198754"
+                                                        : "#212529";
+
+                                            return (
+                                                <View
+                                                    key={`${nome}-${data}-${index}`}
+                                                    style={{
+                                                        flexDirection: "row",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        borderRadius: scale(8),
+                                                        paddingHorizontal: scale(8),
+                                                        paddingVertical: scale(8),
+                                                        backgroundColor: "#f8f9fa",
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            fontSize: scale(14),
+                                                            fontWeight: "600",
+                                                            color,
+                                                        }}
+                                                    >
+                                                        {data}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            fontSize:
+                                                                scale(14),
+                                                            color,
+                                                        }}
+                                                    >
+                                                        {nome}
+                                                        {aniversario && " 🎉"}
+                                                    </Text>
+                                                </View>
+                                            );
+                                        }
+                                        )}
+                                    </View>
+                                </View>
+                            );
+                        }
+                    )
+                ) : (
+                    <View
                         style={{
-                            fontWeight: 'bold',
-                            textTransform: 'uppercase',
-                            color: '#999999',
-                            textAlign: 'center'
+                            padding: scale(16),
+                            alignItems: "center",
                         }}
                     >
-                        Nenhum aniversário próximo encontrado
-                    </Text>
-                </View>
-            }
-        </ScrollView>
+                        <Text
+                            style={{
+                                fontWeight: "700",
+                                textTransform:
+                                    "uppercase",
+                                color: "#999999",
+                                textAlign: "center",
+                            }}
+                        >
+                            Nenhum aniversário próximo
+                            encontrado
+                        </Text>
+                    </View>
+                )}
+            </ScrollView>
+        </View>
     );
 };
-
-const style = StyleSheet.create({
-    niverWrap: {
-        flexDirection: 'column',
-        marginVertical: 7,
-    },
-    mesNiverBox: {
-        flex: 1,
-        height: 1,
-        borderBottomWidth: 1,
-        borderBottomColor: 'black',
-    },
-    mesNiverBoxAtual: {
-        borderBottomColor: '#286DA8',
-    },
-    span: {
-        color: 'black',
-        fontSize: 16,
-        backgroundColor: 'white',
-        paddingHorizontal: 32,
-    },
-    spanAtual: {
-        color: '#286DA8',
-        marginInline: 10,
-        fontWeight: '600',
-    },
-    niverPassado: {
-        color: '#AFAFAF',
-    },
-    niverAtual: {
-        color: '#286DA8',
-        fontWeight: '600',
-    },
-    niverFuturo: {
-        color: 'black',
-    },
-});
