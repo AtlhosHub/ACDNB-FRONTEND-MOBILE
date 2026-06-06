@@ -1,9 +1,9 @@
 export interface OcorrenciaProps {
-    nome: string;
-    ocorrencias: number;
+    descricao: string;
+    numOcorrencias: number;
 }
 
 export interface DificuldadePayload {
-    startDate: string;
-    endDate: string;
+    mes: number;
+    ano: number;
 }

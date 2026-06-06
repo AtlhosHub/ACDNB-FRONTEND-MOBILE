@@ -31,7 +31,7 @@ export function DificuldadesTab() {
     const scale = useScale();
 
     const [mes, setMes] = useState<string>(MESES[dayjs().month()]);
-    const [ano, setAno] = useState<string>("2025");
+    const [ano, setAno] = useState<string>(dayjs().year().toString());
     const [max, setMax] = useState(0);
 
     const [ocorrencia, setOcorrencia] = useState<OcorrenciaProps[]>([]);
@@ -42,18 +42,17 @@ export function DificuldadesTab() {
         setFetchingData(true);
 
         const payload = {
-            startDate: dayjs(`${ano}-${MESES.indexOf(mes) + 1}-01`).startOf("month").format("YYYY-MM-DD"),
-            endDate: dayjs(`${ano}-${MESES.indexOf(mes) + 1}-01`).endOf("month").format("YYYY-MM-DD"),
+            mes: MESES.indexOf(mes) + 1,
+            ano: parseInt(ano),
         }
 
         const response = await getDificuldade(payload);
 
-        setOcorrencia(response.ocorrencias);
-        setSugestao(response.sugestao);
+        setOcorrencia(response);
 
-        if (response.ocorrencias.length > 0) {
+        if (response.length > 0) {
             setMax(Math.max(
-                ...response.ocorrencias.map((d) => d.ocorrencias)
+                ...response.map((d: OcorrenciaProps) => d.numOcorrencias)
             ));
         }
 
@@ -181,9 +180,21 @@ export function DificuldadesTab() {
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                         <ActivityIndicator size="large" color="#286DA8" />
                     </View>
+                ) : ocorrencia.length === 0 ? (
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <Text
+                            style={{
+                                fontSize: scale(14),
+                                fontFamily: 'Poppins_600SemiBold',
+                                color: "#6c757d",
+                            }}
+                        >
+                            Não há dados disponíveis
+                        </Text>
+                    </View>
                 ) : (
                     ocorrencia.map((d) => (
-                        <View key={d.nome}>
+                        <View key={d.descricao}>
                             <View
                                 style={{
                                     flexDirection: "row",
@@ -199,7 +210,7 @@ export function DificuldadesTab() {
                                         color: "#212529",
                                     }}
                                 >
-                                    {d.nome}
+                                    {d.descricao}
                                 </Text>
 
                                 <Text
@@ -209,7 +220,7 @@ export function DificuldadesTab() {
                                         color: "#286DA8",
                                     }}
                                 >
-                                    {d.ocorrencias} ocorrências
+                                    {d.numOcorrencias} ocorrências
                                 </Text>
                             </View>
 
@@ -225,7 +236,7 @@ export function DificuldadesTab() {
                                 <View
                                     style={{
                                         height: "100%",
-                                        width: `${(d.ocorrencias / max) * 100}%`,
+                                        width: `${(d.numOcorrencias / max) * 100}%`,
                                         backgroundColor: "#286DA8",
                                         borderRadius: scale(999),
                                     }}
@@ -236,7 +247,7 @@ export function DificuldadesTab() {
                 )}
             </View>
 
-            <View
+            {/* <View
                 style={{
                     borderWidth: scale(2),
                     borderColor: "#6ea8fe",
@@ -287,7 +298,7 @@ export function DificuldadesTab() {
                         </Text>
                     </>
                 )}
-            </View>
+            </View> */}
         </View>
     );
 }
