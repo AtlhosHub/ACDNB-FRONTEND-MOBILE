@@ -65,8 +65,8 @@ function MainTabs() {
         ),
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Mensalidades" component={MensalidadesScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Lista de Espera" component={ListaEsperaScreen} />
       <Tab.Screen name="Trainer AI" component={TrainerAIScreen} />
     </Tab.Navigator>
@@ -99,7 +99,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#0d3c53',
+    backgroundColor: '#286DA8',
     borderTopWidth: 0,
     paddingTop: 6,
     paddingHorizontal: 8,

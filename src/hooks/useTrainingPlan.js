@@ -110,7 +110,7 @@ async function buildPdfHtml(planText, students, date) {
   </style>
 </head>
 <body>
-  <h1>SMASH — Plano de Treino</h1>
+  <h1>ACDNB — Plano de Treino</h1>
   <div class="meta">Gerado em ${date}</div>
 
   ${studentSection}
@@ -120,7 +120,7 @@ async function buildPdfHtml(planText, students, date) {
   <h2>Plano de treino</h2>
   <div class="plan-box">${planHtml}</div>
 
-  <div class="footer">Gerado pelo Treinador AI — SMASH Tênis de Mesa</div>
+  <div class="footer">Gerado pelo Treinador AI — ACDNB Tênis de Mesa</div>
 </body>
 </html>`;
 }

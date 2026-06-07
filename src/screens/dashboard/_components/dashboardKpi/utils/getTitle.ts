@@ -1,4 +1,4 @@
-export const getTitle = (key) => {
+export const getTitle = (key: string) => {
     switch (key) {
         case 'alunos':
             return 'Alunos'

@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Pressable } from "react-native"
+import { View, Text, Pressable } from "react-native"
 import { useScale } from "../../../../../utils/scale";
 import { getLatitudeDelta } from "../../_utils/getRadius";
 
@@ -27,7 +27,7 @@ export const HeatMapTable = ({ tableData, setDefaultRegion }) => {
                     flexDirection: 'row',
                     paddingHorizontal: scale(10),
                     paddingVertical: scale(10),
-                    backgroundColor: 'rgba(0,0,0,0.05)'
+                    backgroundColor: '#e9e9e9'
                 }}
             >
                 {header.map((item, index) => (
@@ -77,7 +77,7 @@ export const HeatMapTable = ({ tableData, setDefaultRegion }) => {
                     >
                         <Text style={{ flex: header[0].largura, textAlign: 'center' }}>{row.rank}</Text>
                         <Text style={{ flex: header[1]?.largura, textTransform: 'uppercase' }}>{row.nome}</Text>
-                        <Text style={{ flex: header[2]?.largura, textAlign: 'center' }}>{row.points}</Text>
+                        <Text style={{ flex: header[2]?.largura, textAlign: 'center', fontFamily: 'Poppins_600SemiBold' }}>{row.points}</Text>
                     </View>
                     {index !== tableData.length - 1 &&
                         <View style={{ width: '100%', height: 1, backgroundColor: 'rgba(0,0,0,0.2)' }} />
