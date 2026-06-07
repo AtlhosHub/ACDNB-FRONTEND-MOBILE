@@ -4,8 +4,7 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import { gerarPlano } from "../services/api";
-import { gerarNomeArquivo, markdownToHtml, isPlanRequest, resolveImageDataUri } from "../utils/formatters";
-
+import { gerarNomeArquivo, markdownToHtml, isPlanRequest, resolveImageDataUri } from "../../utils/formatters";
 const EXERCISE_DEFINITIONS = {
   forehand:  { labels: ["forehand", "fh"], title: "Forehand", img: require('../assets/images/forehand.png') },
   backhand:  { labels: ["backhand", "bh"], title: "Backhand", img: require('../assets/images/backhand.png') },

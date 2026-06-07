@@ -73,28 +73,30 @@ const AppHeader = ({ subtitulo, onBackPress }) => {
                 }}
             />
 
-      <TouchableOpacity
-        onPress={onBackPress}
-        activeOpacity={0.7}
-        style={{
-          position: 'absolute',
-          left: scale(10),
-          top: insets.top + scale(86),
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: scale(4),
-        }}
-      >
-        <Text
+      {onBackPress ? (
+        <TouchableOpacity
+          onPress={onBackPress}
+          activeOpacity={0.7}
           style={{
-            fontFamily: 'Poppins_500Medium',
-            fontSize: scale(14),
-            color: '#1e4e66',
+            position: 'absolute',
+            left: scale(10),
+            top: insets.top + scale(86),
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: scale(4),
           }}
         >
-          {t('appHeader.voltar')}
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={{
+              fontFamily: 'Poppins_500Medium',
+              fontSize: scale(14),
+              color: '#1e4e66',
+            }}
+          >
+            {t('appHeader.voltar')}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
