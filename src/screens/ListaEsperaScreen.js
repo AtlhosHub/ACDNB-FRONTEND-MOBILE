@@ -177,7 +177,6 @@ const ListaEsperaScreen = () => {
     >
       <AppHeader
         subtitulo={t('listaEspera.headerSubtitle')}
-        onBackPress={() => console.log('voltar pressionado')}
       />
       <ScrollView
         style={{
@@ -337,7 +336,7 @@ const ListaEsperaScreen = () => {
                     }}
                     numberOfLines={2}
                   >
-                    {registro.nomeAluno}
+                    {registro.nomeAluno.length > 20 ? `${registro.nomeAluno.substring(0, 20)}...` : registro.nomeAluno}
                   </Text>
                   <Text
                     style={{

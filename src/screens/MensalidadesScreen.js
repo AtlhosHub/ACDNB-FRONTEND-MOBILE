@@ -260,7 +260,6 @@ const MensalidadesScreen = () => {
       />
       <AppHeader
         subtitulo={t('mensalidades.headerSubtitle')}
-        onBackPress={() => console.log('voltar pressionado')}
       />
       <ScrollView
         style={{ flex: 1 }}
@@ -429,7 +428,7 @@ const MensalidadesScreen = () => {
                       }}
                       numberOfLines={1}
                     >
-                      {item.nomeAluno}
+                      {item.nomeAluno.length > 20 ? `${item.nomeAluno.substring(0, 20)}...` : item.nomeAluno}
                     </Text>
                     <View
                       style={{

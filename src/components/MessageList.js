@@ -31,11 +31,13 @@ export function MessageList({ messages, isLoading, onSavePdf }) {
           )}
 
           <View style={styles.msgContent}>
-            <View style={[styles.bubble, msg.role === "user" ? styles.bubbleUser : styles.bubbleBot]}>
-              <Text style={[styles.bubbleText, msg.role === "user" && styles.bubbleTextUser]}>
-                {msg.text}
-              </Text>
-            </View>
+            {!msg.isPlan && (
+              <View style={[styles.bubble, msg.role === "user" ? styles.bubbleUser : styles.bubbleBot]}>
+                <Text style={[styles.bubbleText, msg.role === "user" && styles.bubbleTextUser]}>
+                  {msg.text}
+                </Text>
+              </View>
+            )}
 
             {/* Botão de PDF — só aparece em mensagens com plano gerado */}
             {msg.isPlan && msg.planContent && (
