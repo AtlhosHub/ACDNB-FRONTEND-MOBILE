@@ -4,14 +4,14 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import { gerarPlano } from "../services/api";
-
+import { gerarNomeArquivo, markdownToHtml, isPlanRequest, resolveImageDataUri } from "../utils/formatters";
 
 const EXERCISE_DEFINITIONS = {
-  forehand: { labels: ["forehand", "fh"], title: "Forehand", img: null },
-  backhand: { labels: ["backhand", "bh"], title: "Backhand", img: null },
-  topspin:  { labels: ["topspin"], title: "Topspin", img: null },
-  bloqueio: { labels: ["bloqueio", "block"], title: "Bloqueio", img: null },
-  saque:    { labels: ["saque", "serve"], title: "Saque", img: null },
+  forehand:  { labels: ["forehand", "fh"], title: "Forehand", img: require('../assets/images/forehand.png') },
+  backhand:  { labels: ["backhand", "bh"], title: "Backhand", img: require('../assets/images/backhand.png') },
+  topspin:   { labels: ["topspin"], title: "Topspin", img: require('../assets/images/topspin.png') },
+  bloqueio:  { labels: ["bloqueio", "block"], title: "Bloqueio", img: require('../assets/images/bloqueio.png') },
+  saque:     { labels: ["saque", "serve"], title: "Saque", img: require('../assets/images/saque.png') },
 };
 
 function detectExercises(text) {
@@ -30,64 +30,30 @@ function detectExercises(text) {
   return Array.from(found);
 }
 
-function buildExercisesHtml(keys) {
+async function buildExercisesHtml(keys) {
   if (!keys || keys.length === 0) return "";
 
-  const cards = keys
-    .map((k) => {
+  const cards = await Promise.all(
+    keys.map(async (k) => {
       const title = EXERCISE_DEFINITIONS[k]?.title ?? k;
+      const imageModule = EXERCISE_DEFINITIONS[k]?.img;
+      const imageSrc = imageModule ? await resolveImageDataUri(imageModule) : null;
+
       return `
-        <div style="border:1px solid #dfe9fb;border-radius:8px;padding:8px;text-align:center;width:110px;flex-shrink:0;background:#fff;">
-          <div style="height:60px;background:#f4f8fd;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#6b7a99;margin-bottom:6px;">sem imagem</div>
-          <div style="font-size:11px;font-weight:600;color:#1652A1;">${title}</div>
+        <div style="border:1px solid #dfe9fb;border-radius:12px;padding:16px;text-align:center;width:170px;flex-shrink:0;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+          <div style="height:120px;background:#f4f8fd;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;">
+            ${imageSrc ? `<img src="${imageSrc}" alt="${title}" style="max-width:100%;max-height:100%;object-fit:contain;"/>` : "<span style=\"color:#6b7a99;font-size:12px;\">sem imagem</span>"}
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1652A1;">${title}</div>
         </div>`;
     })
-    .join("");
+  );
 
-  return `<h2>Técnicas referenciadas neste plano</h2><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;">${cards}</div>`;
+  return `<h2>Técnicas referenciadas neste plano</h2><div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;">${cards.join('')}</div>`;
 }
 
 
-
-function markdownToHtml(text) {
-  return text
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm,  "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm,   "<h1>$1</h1>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/__(.+?)__/g,     "<strong>$1</strong>")
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
-    .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g,       "<em>$1</em>")
-    .replace(/^---+$/gm, "<hr/>")
-    .replace(/^[\*\-] (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>[\s\S]+?<\/li>)(\n(?!<li>)|$)/g, "<ul>$1</ul>")
-    .split("\n")
-    .map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return "";
-      if (/^<(h[1-6]|ul|li|hr|strong|em)/.test(trimmed)) return trimmed;
-      return `<p>${trimmed}</p>`;
-    })
-    .filter(Boolean)
-    .join("\n");
-}
-
-
-
-function gerarNomeArquivo() {
-  const now  = new Date();
-  const dd   = String(now.getDate()).padStart(2, "0");
-  const mm   = String(now.getMonth() + 1).padStart(2, "0");
-  const yyyy = now.getFullYear();
-  const hh   = String(now.getHours()).padStart(2, "0");
-  const min  = String(now.getMinutes()).padStart(2, "0");
-  return `Plano_Treino_${dd}-${mm}-${yyyy}_${hh}-${min}.pdf`;
-}
-
-
-
-function buildPdfHtml(planText, students, date) {
+async function buildPdfHtml(planText, students, date) {
   const NIVEL_LABEL = {
     Iniciante:     "Iniciante",
     Intermediário: "Intermediário",
@@ -107,8 +73,16 @@ function buildPdfHtml(planText, students, date) {
     </tr>`;
   }).join("");
 
+  const studentSection = students.length > 0 ? `
+    <h2>Alunos incluídos</h2>
+    <table>
+      <thead><tr><th>Nome</th><th>Nível</th><th>Observações</th></tr></thead>
+      <tbody>${studentRows}</tbody>
+    </table>
+  ` : "";
+
   const exerciseKeys   = detectExercises(planText);
-  const exercisesHtml  = buildExercisesHtml(exerciseKeys);
+  const exercisesHtml  = await buildExercisesHtml(exerciseKeys);
   const planHtml       = markdownToHtml(planText);
 
   return `<!DOCTYPE html>
@@ -139,11 +113,7 @@ function buildPdfHtml(planText, students, date) {
   <h1>SMASH — Plano de Treino</h1>
   <div class="meta">Gerado em ${date}</div>
 
-  <h2>Alunos incluídos</h2>
-  <table>
-    <thead><tr><th>Nome</th><th>Nível</th><th>Observações</th></tr></thead>
-    <tbody>${studentRows}</tbody>
-  </table>
+  ${studentSection}
 
   ${exercisesHtml}
 
@@ -156,9 +126,6 @@ function buildPdfHtml(planText, students, date) {
 }
 
 
-// ---------------------------------------------------------------------------
-// Hook principal
-// ---------------------------------------------------------------------------
 export function useTrainingPlan() {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -167,17 +134,16 @@ export function useTrainingPlan() {
 
     try {
       const planContent = await gerarPlano(userMessage, students);
-      const hasStudents = students.length > 0;
-
+      const planRequest = isPlanRequest(userMessage);
       return {
         id:          Date.now().toString(),
         role:        "bot",
-        text:        hasStudents
+        text:        planRequest
                        ? "Plano de treino gerado! Toque em Salvar PDF para baixar."
                        : planContent,
         time:        new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-        isPlan:      hasStudents,
-        planContent: hasStudents ? planContent : undefined,
+        isPlan:      planRequest,
+        planContent: planRequest ? planContent : undefined,
       };
     } catch (err) {
       console.error("generatePlan error:", err);
@@ -199,7 +165,7 @@ export function useTrainingPlan() {
         " às " +
         new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-      const html      = buildPdfHtml(planText, students, date);
+      const html      = await buildPdfHtml(planText, students, date);
       const { uri }   = await Print.printToFileAsync({ html });
       const fileName  = gerarNomeArquivo();
       const namedUri  = FileSystem.cacheDirectory + fileName;

@@ -111,8 +111,8 @@ export default function TrainerAIScreen() {
                          ? t('trainerAI.planoCriado')
                          : planContent,
           time:        new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          isPlan:      hasStudents,
-          planContent: hasStudents ? planContent : undefined,
+          isPlan:      Boolean(planContent),
+          planContent: planContent,
         };
         setMessages((prev) => [...prev, botMsg]);
       }
