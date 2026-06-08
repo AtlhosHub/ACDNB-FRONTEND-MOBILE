@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { View, Text, Pressable } from "react-native"
 import { useScale } from "../../../../../utils/scale";
 import { getLatitudeDelta } from "../../_utils/getRadius";
 
 export const HeatMapTable = ({ tableData, setSelectedRegion }) => {
     const scale = useScale();
+    const [selectedIndex, setSelectedIndex] = useState(null);
 
     const header = [
         { texto: 'Ranque', largura: 2 },
@@ -59,6 +61,7 @@ export const HeatMapTable = ({ tableData, setSelectedRegion }) => {
             {tableData.map((row, index) => (
                 <Pressable
                     onTouchStart={() => {
+                        setSelectedIndex(index);
                         setSelectedRegion({
                             latitude: row.latitude,
                             longitude: row.longitude,
@@ -72,7 +75,11 @@ export const HeatMapTable = ({ tableData, setSelectedRegion }) => {
                         style={{
                             flexDirection: 'row',
                             paddingVertical: scale(10),
-                            paddingHorizontal: scale(10)
+                            paddingHorizontal: scale(10),
+                            backgroundColor: selectedIndex === index ? '#D4E8F0' : 'white',
+                            borderLeftWidth: selectedIndex === index ? 4 : 0,
+                            borderLeftColor: selectedIndex === index ? '#286DA8' : 'transparent',
+                            alignItems: 'center'
                         }}
                     >
                         <Text style={{ flex: header[0].largura, textAlign: 'center' }}>{row.rank}</Text>
