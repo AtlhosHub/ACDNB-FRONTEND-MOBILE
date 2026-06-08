@@ -67,12 +67,12 @@ export const RegioesTab = ({
                 <>
                     <HeatMap
                         mapPoints={mapData}
-                        defaultRegion={region}
-                        setDefaultRegion={setRegion}
+                        selectedRegion={region}
+                        setSelectedRegion={setRegion}
                     />
                     <HeatMapTable
                         tableData={mapData}
-                        setDefaultRegion={setRegion}
+                        setSelectedRegion={setRegion}
                     />
                 </>
             )}

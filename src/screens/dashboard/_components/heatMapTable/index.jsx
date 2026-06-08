@@ -2,7 +2,7 @@ import { View, Text, Pressable } from "react-native"
 import { useScale } from "../../../../../utils/scale";
 import { getLatitudeDelta } from "../../_utils/getRadius";
 
-export const HeatMapTable = ({ tableData, setDefaultRegion }) => {
+export const HeatMapTable = ({ tableData, setSelectedRegion }) => {
     const scale = useScale();
 
     const header = [
@@ -59,7 +59,7 @@ export const HeatMapTable = ({ tableData, setDefaultRegion }) => {
             {tableData.map((row, index) => (
                 <Pressable
                     onTouchStart={() => {
-                        setDefaultRegion({
+                        setSelectedRegion({
                             latitude: row.latitude,
                             longitude: row.longitude,
                             latitudeDelta: getLatitudeDelta(row.area),
