@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     paddingTop: 6,
     paddingHorizontal: 8,
+    minHeight: 62
   },
   tabLabel: {
     fontFamily: 'Poppins_500Medium',

@@ -278,11 +278,12 @@ const MensalidadesScreen = () => {
               width: "100%",
               height: scale(38),
               borderRadius: scale(8),
-              borderColor: 'rgba(0,0,0,0.6)',
+              borderColor: '#286da8',
               borderWidth: 1,
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: scale(8),
+              backgroundColor: 'white'
             }}
           >
             <TextInput
@@ -549,7 +550,9 @@ const MensalidadesScreen = () => {
                 borderWidth: 1,
                 borderColor:
                   paginaAtual === 1 ? 'rgba(40,109,168,0.35)' : '#286da8',
-                alignItems: 'center',
+                backgroundColor: 'white',
+                opacity: paginaAtual === 1 ? 0.6 : 1,
+                  alignItems: 'center',
                 justifyContent: 'center',
                 marginRight: scale(10),
               }}
@@ -581,10 +584,9 @@ const MensalidadesScreen = () => {
                 height: scale(28),
                 borderRadius: scale(5),
                 borderWidth: 1,
-                borderColor:
-                  paginaAtual === totalPaginas
-                    ? 'rgba(40,109,168,0.35)'
-                    : '#286da8',
+                borderColor: paginaAtual === totalPaginas ? 'rgba(40,109,168,0.35)' : '#286da8',
+                backgroundColor: 'white',
+                opacity: paginaAtual === totalPaginas ? 0.6 : 1,
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginLeft: scale(10),

@@ -201,6 +201,7 @@ export function DificuldadesTab() {
                                     justifyContent: "space-between",
                                     alignItems: "center",
                                     marginBottom: scale(6),
+                                    gap: 20
                                 }}
                             >
                                 <Text
@@ -208,6 +209,7 @@ export function DificuldadesTab() {
                                         fontSize: scale(14),
                                         fontFamily: 'Poppins_600SemiBold',
                                         color: "#212529",
+                                        flex: 1
                                     }}
                                 >
                                     {d.descricao}
