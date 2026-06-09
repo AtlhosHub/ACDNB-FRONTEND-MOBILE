@@ -146,10 +146,12 @@ export function useTrainingPlan() {
       };
     } catch (err) {
       console.error("generatePlan error:", err);
+      const rawMessage = err?.message ?? "Falha ao conectar com o servidor.";
+      const cleanMessage = rawMessage.replace(/^Erro:\s*/i, "");
       return {
         id:   Date.now().toString(),
         role: "bot",
-        text: `Erro: ${err?.message ?? "Falha ao conectar com o servidor."}`,
+        text: `Erro: ${cleanMessage}`,
         time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
       };
     } finally {

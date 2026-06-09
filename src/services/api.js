@@ -39,6 +39,15 @@ export async function logout() {
   await AsyncStorage.removeItem(TOKEN_KEY);
 }
 
+function extractErrorMessage(error, fallbackMessage) {
+  const response = error.response;
+  if (!response) return fallbackMessage;
+
+  const data = response.data;
+  if (data?.message) return data.message;
+  if (typeof data === 'string' && data.trim()) return data.trim();
+  return fallbackMessage ?? `Erro ${response.status} - Tente novamente mais tarde.`;
+}
 
 export async function getAlunos() {
   const { data } = await api.get('/trainer/alunos');
@@ -82,8 +91,9 @@ export async function gerarPlano(message, students) {
     });
     return data;
   } catch (error) {
-    if (error.response?.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
-    throw new Error(`Erro: ${error.response?.status ?? error.message}`);
+    const fallback = 'O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.';
+    const messageText = extractErrorMessage(error, fallback);
+    throw new Error(messageText);
   }
 }
 
@@ -102,7 +112,8 @@ export async function transcreverEGerarPlano(audioBase64, mimeType, students) {
     });
     return data;
   } catch (error) {
-    if (error.response?.status === 503) throw new Error('O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.');
-    throw new Error(`Erro ao transcrever: ${error.response?.status ?? error.message}`);
+    const fallback = 'O serviço de IA está temporariamente sobrecarregado. Aguarde alguns segundos e tente novamente.';
+    const messageText = extractErrorMessage(error, fallback);
+    throw new Error(messageText);
   }
 }
